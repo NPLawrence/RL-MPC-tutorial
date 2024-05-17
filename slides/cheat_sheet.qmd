@@ -1,15 +1,17 @@
 ---
-title: "Reinforcement learning & control cheat sheet"
+title: ""
 format:
   pdf:
+    fontsize: 14pt
     colorlinks: true
-    classoption: [twocolumn, landscape]
     geometry:
-      - top=10mm
+      - top=5mm
       - left=10mm
       - right=10mm
+  html:
+    fontsize: 18pt
+    colorlinks: true
 ---
-
 
 
 ## Reinforcement learning
@@ -75,38 +77,31 @@ Discounted return
 
 $G_t = \sum_{k=0}^\infty \gamma^k r_{t+k}$
 
+$V^\pi$
 
+Value function
 
+$V^\pi (s) = \mathbb{E} \left[ G_0 | s_0 = s \right]$
 
+$V^\star$
+
+Optimal value function
+
+The above, but better
+
+$Q^\pi$
+
+State-action value function
+
+<div></div>
+
+$Q^\star$
+
+Optimal value function
+
+<div></div>
 
 :::
-
-
-
-## Acronyms
-
-::: {layout="[[0.4,1]]"}
-RL
-
-Reinforcement learning
-
-MPC
-
-Model predictive control
-
-LQR
-
-Linear quadratic regulator
-
-PID
-
-Proportional-integral-derivative
-:::
-
-
-
-{{< pagebreak >}}
-
 
 
 ## Control
@@ -156,6 +151,33 @@ $u = -K x$
 
 
 :::
+
+
+
+
+
+## Acronyms
+
+::: {layout="[[0.4,1]]"}
+RL
+
+Reinforcement learning
+
+MPC
+
+Model predictive control
+
+LQR
+
+Linear quadratic regulator
+
+PID
+
+Proportional-integral-derivative
+:::
+
+
+
 
 
 
