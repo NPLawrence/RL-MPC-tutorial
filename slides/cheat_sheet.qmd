@@ -1,0 +1,163 @@
+---
+title: "Reinforcement learning & control cheat sheet"
+format:
+  pdf:
+    colorlinks: true
+    classoption: [twocolumn, landscape]
+    geometry:
+      - top=10mm
+      - left=10mm
+      - right=10mm
+---
+
+
+
+## Reinforcement learning
+
+::: {layout="[[0.5,1,1]]"}
+
+
+
+
+$s, s'$
+
+State
+
+$s_t, s_{t+1}$
+
+ 
+$a$
+
+Action
+
+$a_t$ 
+
+
+
+$p$    
+
+State transition probability 
+
+$s' \sim p\left( s' \middle| s, a \right)$ 
+
+
+
+
+$r$
+
+Reward
+
+$r_t = r(s_t, a_t)$
+
+
+
+
+$\pi$
+
+Policy
+
+$a \sim \pi(a|s)$, $a=\pi(s)$
+
+
+
+
+
+$\gamma$
+
+Discount factor
+
+$\gamma \in [0,1]$
+
+
+$G_t$ 
+
+Discounted return
+
+$G_t = \sum_{k=0}^\infty \gamma^k r_{t+k}$
+
+
+
+
+
+:::
+
+
+
+## Acronyms
+
+::: {layout="[[0.4,1]]"}
+RL
+
+Reinforcement learning
+
+MPC
+
+Model predictive control
+
+LQR
+
+Linear quadratic regulator
+
+PID
+
+Proportional-integral-derivative
+:::
+
+
+
+{{< pagebreak >}}
+
+
+
+## Control
+
+::: {layout="[[0.5,1,1]]"}
+
+$x$
+
+State
+
+$x_t$
+
+
+
+$u$ 
+
+(Control) input
+
+$u_t$
+
+
+$f$  
+
+State transition function
+
+$x_{t+1} = f(x_t, u_t)$
+
+
+
+$\ell$ 
+
+(Stage) cost
+
+$\ell(x,u) = x^T M x + u^T R u$
+
+
+
+$K$
+
+Gain matrix
+
+$u = -K x$
+
+
+
+
+
+
+:::
+
+
+
+
+

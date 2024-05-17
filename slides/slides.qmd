@@ -1,0 +1,2174 @@
+---
+title: "A reinforcement learning perspective on industrial model predictive control" 
+subtitle: "Upper Bound 2024"
+author: "Nathan Lawrence"
+format: 
+    html:
+        html-table-processing: none
+        embed-resources: true
+        auto-play-media: true
+    revealjs:
+        slide-number: c
+        show-slide-number: all
+        theme: [default, custom.scss]
+        auto-play-media: true
+        embed-resources: true
+title-slide-attributes: 
+  data-background-image: figs/qr-cheatsheet.png
+  data-background-size: 15%
+  data-background-position: 98% 98%
+bibliography: tutorial.bib
+---
+
+## 
+
+::: r-stack
+![](figs/1_intro_rlmpc.png){fig-align="center"}
+
+![](figs/2_intro_rlmpc.png){.fragment fig-align="center"}
+
+![](figs/3_intro_rlmpc.png){.fragment fig-align="center"}
+
+![](figs/4_intro_rlmpc.png){.fragment fig-align="center"}
+:::
+
+::: aside
+::: {.fragment}
+[Sketches--Brian Douglas](https://www.mathworks.com/solutions/control-systems/feedback-control-systems.html)
+:::
+:::
+
+##
+
+Day-to-day life depends on safely regulating a system around a constant value:
+
+:::: {.columns}
+::: {.column width="40%"}
+1.  Cruise control
+2.  Temperature
+3.  Concentrations
+:::
+
+::: {.column width="60%"}
+4.  Levels
+5.  Moisture
+6.  Etc...
+:::
+::::
+
+![](figs/sysid.png){height=150 fig-align="center"}
+
+
+## 
+
+
+::: r-stack
+![](figs/1_mapofcontrol.png){fig-align="center"}
+
+![](figs/2_mapofcontrol.png){.fragment fig-align="center"}
+:::
+
+
+
+## Today
+
+Combine reinforcement learning (RL) & model predictive control (MPC)!
+
+:::: {.columns}
+::: {.column width="80%"}
+- RL, MPC, and some stuff in-between pertaining to process control
+- How to implement these ideas
+- Emphasis on intuition rather than rigor
+- Ask questions and be ready to discuss things with your neighbor
+:::
+::: {.column width="20%"}
+![Cheat sheet!](figs/qr-cheatsheet.png)
+:::
+::::
+I hope this works for you!
+
+
+# Reinforcement learning
+
+## Agents and environments {.center}
+
+
+## Environment
+
+::: {layout="[[0.6,1,1]]" layout-valign="center"}
+Apply torque
+
+![](figs/pendulum.gif){height=350 fig-align="center"}
+
+<div>
+
+Observe
+
+-   Angle
+-   Angular velocity
+
+</div>
+:::
+
+
+
+## Environment
+
+$s_t$ -- state
+
+$a_t$ -- action
+
+Actions and states lead to new states $$s_{t+1} \sim p \left( s_{t+1} \middle| s_t, a_t \right)$$
+
+![](figs/mdp.png){height=200 fig-align="center"}
+
+
+
+## Environment
+
+Continuing forever gives a trajectory $$s_0, a_0, s_1, a_1, \ldots, s_{t}, a_{t}, s_{t+1}, \ldots$$
+
+Most trajectories are "bad"
+
+We want a system that discovers "good" behavior in the environment
+
+![](figs/blunder.png){height=200 fig-align="center"}
+
+## Agent
+
+The agent is the learner:
+
+-   Decides which actions to take
+-   Improves its behavior
+
+![](figs/RL_illustration.png){fig-align="center"}
+
+::: aside
+Figure: @weng2018bandit
+:::
+
+## Agent
+
+**Reward** guides learning:
+
+-   A scalar feedback signal
+-   Indicates which states & actions are good
+
+![](figs/RLSutton.png){height="250" fig-align="center"}
+
+::: aside
+Figure: @sutton2018ReinforcementLearning
+:::
+
+## What are we really trying to solve? {.center}
+
+## 
+
+The agent-environment interface yields the trajectory $$s_0, a_0, r_0, s_1, a_1, r_1 \ldots, s_{t}, a_{t}, r_{t}, s_{t+1}, \ldots$$
+
+States governed by $$s_{t+1} \sim p \left( s_{t+1} \middle| s_t, a_t \right)$$ Agent chooses actions from a **policy** $$a_t \sim \pi\left( a_t \middle| s_t \right)$$ Rewards assigned by a function $$r_t = r(s_t, a_t)$$
+
+## The space of policies is vast
+
+-   Completely random
+-   An industrial control module
+-   Neural network
+
+::: r-stack
+![](figs/gritty.gif){.fragment height=190 fig-align="center"}
+
+![](figs/Honey_UDC.jpg){.fragment height=210 fig-align="center"}
+
+![](figs/nn.png){.fragment height=230 fig-align="center"}
+:::
+
+::: {.fragment .r-fit-text}
+We want the "best" policy!
+:::
+
+## 
+
+-   Take $a \in \text{argmax}_{a} \left\{ r(s,a) \right\}$?
+
+::: r-stack
+$\rightarrow$ too shortsighted
+:::
+
+-   Maximize $r_0 + r_1 + r_2 + \ldots$?
+
+::: r-stack
+$\rightarrow$ might diverge
+:::
+
+Consider the discounted **return** $$G_t = r_t + \gamma r_{t+1} + \gamma^2 r_{t+2} + \ldots$$ where $\gamma \in [0,1]$
+
+## 
+
+-   Typically, $\gamma \in (0,1)$
+-   Assume $r$ is bounded by $\bar{r}$
+
+Return is bounded across all possible trajectories $$\lvert G_t \rvert \leq \frac{\bar{r}}{1 - \gamma}$$
+
+![](figs/geometric.png){height="200" fig-align="center"}
+
+
+::: aside
+[Geometric series (Wikipedia)](https://en.wikipedia.org/wiki/Geometric_series)
+:::
+
+## The reinforcement learning problem {auto-animate="true"}
+
+::: {style="margin-top: 200px;"}
+$$ \text{maximize} \quad J(\pi) = \mathbb{E}_{\pi}\left[ \sum_{t=0}^{\infty} \gamma^{t}r(s_t,a_t) \right]$$
+:::
+
+## The reinforcement learning problem {auto-animate="true"}
+
+$$ \text{maximize} \quad J(\pi) = \mathbb{E}_{\pi}\left[ \sum_{t=0}^{\infty} \gamma^{t}r(s_t,a_t) \right]$$
+
+Why is this hard/impossible?
+
+::: incremental
+-   Infinite horizon
+-   Search space
+-   Randomness
+-   No system description
+:::
+
+## Wishful thinking {.center}
+
+## 
+
+What if we had an optimal trajectory? $$s_0^\star, a_0^\star, r_0^\star, s_1^\star, a_1^\star, r_1^\star \ldots, s_{t}^\star, a_{t}^\star, r_{t}^\star, s_{t+1}^\star, \ldots$$
+
+::: {layout="[[1,0.5]]"}
+Then the trajectory starting at $s_t^\star$ should still be optimal $$s_{t}^\star, a_{t}^\star, r_{t}^\star, s_{t+1}^\star, \ldots$$
+
+![](figs/subpath.png)
+:::
+
+::: aside
+[Optimal substructure (Wikipedia)](https://en.wikipedia.org/wiki/Optimal_substructure)
+:::
+
+## Chess example
+
+(placeholder -- think about planning backwards from checkmate)
+
+## 
+
+-   Define the **state-action value** to be $$Q(s,a) = \mathbb{E}_{\pi}\left[ \sum_{t=0}^{\infty} \gamma^{t}r(s_t,a_t) | s_0 = s, a_0 = a \right]$$
+-   Similarly, the (state) **value** averages over the policy: 
+\begin{align}
+V(s) &= \mathbb{E}_{\pi}\left[ \sum_{t=0}^{\infty} \gamma^{t}r(s_t,a_t) | s_0 = s \right]\\
+&= \mathbb{E}_{a \sim \pi(a | s)}\left[ Q(s,a) \right]
+\end{align}
+
+## Abstracting the objective through value functions 
+
+::: {style="margin-top: 200px;"}
+$$J(\pi) = \mathbb{E}_{s_0 \sim p(s_0)}\left[ V(s_0) \right]$$
+:::
+
+## What's the big deal with these magical functions?
+
+Observe 
+\begin{align}
+G_t &= r_t + \gamma r_{t+1} + \gamma^2 r_{t+2} + \ldots \\
+&= r_t + \gamma \left( r_{t+1} + \gamma r_{t+2} + \ldots \right) \\
+&= r_t + \gamma G_{t+1}
+\end{align}
+
+Compresses an infinite number of actions into a simple scalar recursion!
+
+## What's the big deal with these magical functions?
+
+Averaging...
+
+\begin{align}
+V(s) &= \mathbb{E}_{\pi} \left[ G_t \middle| s_t = s \right] \\
+&= \mathbb{E}_{\pi} \left[ r_t + \gamma G_{t+1} \middle| s_t = s \right] \\
+&= \mathbb{E}_{a \sim \pi(a | s)} \left[ r(s,a) + \gamma \mathbb{E}_{s' \sim p(s' | s, a)} \left[ V(s') \right]\right]
+\end{align}
+
+
+
+## What's the big deal with these magical functions?
+
+
+Similarly for $Q$...
+
+\begin{align}
+Q(s,a) &= r(s,a) + \gamma \mathbb{E}_{s' \sim p(s' | s, a)}\left[ V(s') \right]\\
+&= r(s,a) + \gamma \mathbb{E}_{s' \sim p(s' | s, a), a' \sim \pi(a' | s')}\left[ Q(s',a') \right]
+\end{align}
+
+
+
+
+## What's the big deal with these magical functions?
+
+These are the **Bellman equations** for $V$ and $Q$
+
+
+
+\begin{align}
+\bbox[#d8d0ff,2pt]{V(s)} &= \mathbb{E}\left[ r(s,a) + \gamma \bbox[#d8d0ff,2pt]{V(s')} \right] \\
+\bbox[#e0ffd0,2pt]{Q(s,a)} &= r(s,a) + \gamma \mathbb{E}\left[ \bbox[#e0ffd0,2pt]{Q(s',a')} \right]
+\end{align}
+
+
+::: {.fragment .r-fit-text}
+Bellman equation holds for any policy!
+:::
+
+## Bellman optimality equation
+
+An optimal policy $\pi^\star$ solves the following:
+
+::: {layout="[[1,1]]"}
+$$V^\star (s) = \max_{\pi} V(s)$$
+
+$$Q^\star (s,a) = \max_{\pi} Q(s,a)$$
+:::
+
+We don't actually have $\pi^\star$, but it's fun to imagine...
+
+## Bellman optimality equation
+
+Given $V^\star$...
+
+\begin{align}
+V^\star (s) &= \mathbb{E}_{a \sim \pi^\star (a | s)} \left[ r(s,a) + \gamma \mathbb{E}_{s' \sim p(s' | s, a)} \left[ V^\star (s') \right]\right]\\
+&= \max_{a}\left\{ r(s,a) + \gamma \mathbb{E}_{s' \sim p(s' | s, a)} \left[ V^\star (s') \right] \right\}
+\end{align}
+
+![](figs/v_backup.png){height=150 fig-align="center"}
+
+
+::: {.r-fit-text}
+One-step planning is long-term optimal
+:::
+
+## Bellman optimality equation
+
+Given $Q^\star$...
+$$V^\star (s) = \max_{a} Q^\star (s,a)$$
+
+...Even easier!
+
+::: {.r-fit-text}
+Learn $Q^\star$ and then maximize it!
+:::
+
+## Evaluate, improve, repeat... {.center}
+
+## 
+
+Like $V^\star$, $Q^\star$ satisfies a neat optimality condition:
+
+
+\begin{align}
+\bbox[#e0ffd0,2pt]{Q^\star} (s,a) &= r(s,a) + \gamma \mathbb{E}_{s' \sim p(s' | s, a), a' \sim \pi^\star (a' | s')}\left[ Q^\star (s',a') \right] \\
+&= r(s,a) + \gamma  \mathbb{E}_{s' \sim p(s' | s, a)}\left[ \max_{a'} \bbox[#e0ffd0,2pt]{Q^\star} (s',a') \right]
+\end{align}
+
+"Plug this magical function $Q^\star$ into the RHS produces the same function"
+
+## Fixed-point iteration
+
+Iterating $q^{k+1} = B(q^k)$ **may** converge to some $q$ where $q = B(q)$
+
+![](figs/fixedpoint.png)
+
+##  {.center}
+
+-   Let's just take the operator $$B(Q) = r(s,a) + \gamma  \mathbb{E}_{s' \sim p(s' | s, a)}\left[ \max_{a'} Q (s',a') \right]$$ and apply fixed-point iteration!
+
+-   The RHS is an **idealized** update scheme and key source of inspiration
+
+## Fixed-point aspirations
+
+If we have a policy $\pi$ and some oracle that tells us $Q$, take 
+\begin{align}
+\pi^{+}(s) &= \text{arg}\max\limits_{a} Q(s,a) \\
+&= \text{arg}\max\limits_{a} \left\{ r(s,a) + \gamma \mathbb{E}_{s' \sim p(s' | s, a)} \left[ V (s') \right] \right\}
+\end{align}
+
+Then $\pi^{+}$ is at least as good as $\pi$! That is, $Q^{+} = B(Q) \geq Q$.
+
+::: aside
+There are many ways to proceed: Policy iteration, value iteration, and we haven't even mentioned policy evaluation. We're focusing on high-level ideas and avoiding introducing jargon, so see @sutton2018ReinforcementLearning for a full treatment.
+:::
+
+##  {visibility="hidden"}
+
+$$\pi^{+}(s) = \bbox[#DCD0FF,2pt]{\text{arg}\max\limits_{a}} \left\{ r(s,a) + \gamma \bbox[#FF9999,2pt]{\mathbb{E}} \left[ \bbox[#AAF0D1,2pt]{V (s')} \right] \right\}$$
+
+## Three important approximations
+
+![](figs/pi_update.png){fig-align="center"}
+
+::: aside
+See @bertsekas2023course
+:::
+
+##  {.center}
+
+::: {layout="[[1],[1]]"}
+To move things along we will work through some examples instead of focusing on the minutiae of common RL algorithms
+
+![](figs/rl_algs.png){fig-align="center"}
+:::
+
+::: aside
+Figure: [Spinning Up](https://spinningup.openai.com/en/latest/spinningup/rl_intro2.html)
+:::
+
+
+
+# Examples
+
+## Learning to balance {.center}
+
+## Cartpole
+
+::: {layout="[[65,35]]" layout-valign="center"}
+
+![](figs/cart_pole.gif){height="90%"}
+
+**Don't fall!**
+:::
+
+## Deep Q-networks (DQNs)
+
+
+For a **finite** set of actions, define the neural network
+$$\text{DQN}(s) =
+\begin{bmatrix}
+q_1 \\
+\vdots \\
+q_d
+\end{bmatrix}$$ 
+where each $q_i$ is an approximation of $Q(s,a_i)$
+
+Optimization is trivial: 
+\begin{align}
+\pi(s) &= \arg\max \text{DQN}(s) \\
+&= \arg\max\left\{ q_1, \ldots, q_d \right\} \\
+&\approx \arg\max_{a} Q(s,a_i)
+\end{align}
+
+::: aside
+@mnih2013PlayingAtari
+:::
+
+##  {.center}
+
+::: {layout="[1], [1]"}
+![](figs/mnih_atari.png){fig-align="center" width="60%"}
+
+![](figs/mnih_algo.png){fig-align="center" width="65%"}
+:::
+
+::: aside
+Equation 3: Approximately respect the Bellman equation $[q_1, \ldots, q_d] \approx r(s,a) + \gamma \max\{ q_1', \ldots q_d'\}$
+:::
+
+## 
+
+::: {layout="[[1,1], [1,1]]"}
+![Initial](videos/dqn/episode-398.gif){width=300}
+
+![After some time...](videos/dqn/episode-6965.gif){width=300}
+
+![Almost there...](videos/dqn/episode-8159.gif){width=300}
+
+![Final](videos/dqn/episode-8358.gif){width=300}
+:::
+
+## Acrobot {auto-animate="true"}
+
+::: {layout="[[65,35]]" layout-valign="center"}
+![](figs/acrobot.gif)
+
+<div>
+
+**Touch the line!**
+
+</div>
+:::
+
+## Acrobot {auto-animate="true"}
+
+::: {layout="[[65,35]]" layout-valign="center"}
+![](figs/acrobot.gif)
+
+<div>
+
+~~**Touch the line!**~~
+
+**Stay above the line!**
+
+</div>
+:::
+
+## 
+
+Applying DQN...
+
+::: {layout="[[1,1], [1,1]]"}
+![Initial](videos/dqn/acrobot-dqn__0__episode-0.mp4){width=200}
+
+![After some time...](videos/dqn/acrobot-dqn__0__episode-796.mp4){width=200}
+
+![Almost there...](videos/dqn/acrobot-dqn__0__episode-1592.mp4){width=200}
+
+![Final](videos/dqn/acrobot-dqn__0__episode-1990.mp4){width=200}
+:::
+::: aside
+Standing upright would be better than all of these...
+:::
+
+## Finer control requires continuous actions
+
+What we want: 
+$$
+\pi^\star (s) = \arg \max_{a} Q^\star (s,a)
+$$
+
+What DQN delivers:
+
+
+\begin{align}
+\pi(s) &= \arg \max \left\{ q_1, \ldots, q_d \right\} \\
+&\approx \arg \max \left\{ Q^\star(s, a_1), \ldots, Q^\star(s, a_d)\right\}
+\end{align}
+
+## Finer control requires continuous actions
+
+Consider two separate networks:
+
+-   Policy $\pi_{\theta}$ (aka "actor")
+-   $Q$-network $Q_\varphi$ (aka "critic")
+
+Idea: Use $Q_\varphi$ as a loss function for $\pi_{\theta}$: 
+$$\text{maximize}_{\theta} \quad \mathbb{E} \left[ Q_\varphi(s, \pi_\theta (s)) \right]$$
+
+##  {.center}
+
+Then $$\max_{a} Q(s,a) \approx Q(s, \pi_{\theta} (s))$$
+
+::: {.r-fit-text}
+An easy-to-evaluate approximation of the argmax operation!
+:::
+
+## Disclaimer
+
+This doesn't actually work.
+
+See the DDPG, TD3, SAC papers for all the tricks/hacks that make this idea work.
+
+:::: {.columns}
+::: {.column}
+-   Replay buffers
+-   Target networks
+-   Exploration / exploitation
+:::
+::: {.column}
+-   Double $Q$-learning
+-   Delayed updates
+-   Smoothing
+:::
+::::
+
+::: aside
+DDPG [@lillicrap2015ContinuousControl], TD3 [@fujimoto2018AddressingFunction], SAC [@haarnoja2019SoftActorCritic]
+:::
+
+## Acrobot cont'd {.center}
+
+Let's assume we have some RL oracle: Given an environment and sufficiently powerful networks, it does a reasonable job at solving the principal RL problem
+
+
+We isolate two components:
+
+-   Reward function
+-   Discount factor $\gamma$
+
+## Todo: Try to formulate a reward function
+
+::: {layout="[[1,1]]" layout-valign="center/"}
+![](figs/acrobot.png){height="300"}
+
+![](figs/dp.gif){height="300"}
+:::
+
+::: aside
+[Double pendulum \[Wikipedia\]](https://en.wikipedia.org/wiki/Double_pendulum)
+:::
+
+## Reward functions
+
+-   Default: $0$ if above line; $-1$ otherwise
+-   $\ell^2$: Negative $2$-norm of
+    -   normalized velocities
+    -   $-1 - \cos( q_1 )$, $1 - \cos( q_2 )$
+-   Height
+-   $\ell^\infty$: Negative $\infty$-norm of
+    -   Normalized velocities
+    -   Normalized height
+
+## Default reward
+
+![](figs/reward_default.png)
+
+## $\ell^2$ reward
+
+![](figs/reward_l2.png)
+
+## "Height" reward
+
+![](figs/reward_height.png)
+
+## $\ell^\infty$ reward
+
+![](figs/reward_linf.png)
+
+## Summary, $\gamma = 0.99$ {visibility="hidden"}
+
+![](figs/reward_gamma_99_all.png)
+
+------------------------------------------------------------------------
+
+::: {layout="[[1,1,1,1,1], [1,1,1,1,1], [1,1,1,1,1]]"}
+<div>
+
+</div>
+
+default
+
+$\ell^2$
+
+height
+
+$\ell^\infty$
+
+<div>
+
+\
+\
+$\gamma = 0.90$
+
+</div>
+
+![](videos/gamma_90/acrobot-sac__default__1__episode-1950.mp4)
+
+![](videos/gamma_90/acrobot-sac__l2__1__episode-1950.mp4)
+
+![](videos/gamma_90/acrobot-sac__height__3__episode-1950.mp4)
+
+![](videos/gamma_90/acrobot-sac__linf__1__episode-1950.mp4)
+
+<div>
+
+\
+\
+$\gamma = 0.99$
+
+</div>
+
+![](videos/gamma_99/acrobot-sac__default__0__episode-1950.mp4)
+
+![](videos/gamma_99/acrobot-sac__l2__2__episode-1950.mp4)
+
+![](videos/gamma_99/acrobot-sac__height__1__episode-1950.mp4)
+
+![](videos/gamma_99/acrobot-sac__linf__2__episode-1950.mp4)
+:::
+
+::: aside
+1 of $4^8$ configurations. Sampled via [random.org](https://www.random.org).
+:::
+
+## Bloopers
+
+I modified the [default environment]((https://github.com/Farama-Foundation/Gymnasium/blob/main/gymnasium/envs/classic_control/acrobot.py)): default reward, spaces, sampling time
+
+Action space:
+
+-   Old: $\{-1, 0, 1\}$ (discrete)
+-   Intermediate: $[-1, 1]$ (continuous, restricted)
+-   New: $[-2, 2]$ (continuous, expanded)
+
+Sampling time:
+
+-   Old: $dt = 0.2$ seconds
+-   New: $dt = 0.1$ seconds
+
+## Restricted action space
+
+"Height" reward, $\gamma = 0.99$, 5hz
+
+:::: {.columns}
+::: {.column width="50%"}
+![](videos/bloopers/5hz-smallTorque_gamma99_acrobat-sac__height__0__episode-1950.mp4)
+:::
+
+::: {.column width="50%"}
+![](figs/reward_blooper_height_gamma_99.png){width="100%"}
+:::
+::::
+
+## Restricted action space cont'd
+
+$\ell^\infty$ reward, $\gamma = 0.95$, 5hz
+
+:::: {.columns}
+::: {.column width="50%"}
+![](videos/bloopers/5hz-smallTorque_gamma95_acrobat-sac__linf__0__episode-1950.mp4)
+:::
+
+::: {.column width="50%"}
+![](figs/reward_blooper_linf_gamma_95.png){width="100%"}
+:::
+::::
+
+## An analytic solution {.center}
+
+## What if we know something about the environment? {auto-animate="true"}
+
+Let's grossly simplify the problem:
+
+$$\text{maximize } \mathbb{E}_{\pi} \left[ \sum_{t=0}^{\infty} \gamma^t r(s_t,a_t)  \right]$$
+
+:::: {.columns}
+::: {.column width="50%"}
+-   Unknown dynamics
+-   Unstructured policy
+:::
+
+::: {.column width="50%"}
+-   Possibly unknown reward
+-   Everything is random
+:::
+::::
+
+## Aside: Some notation
+
+(placeholder -- some discussion about RL and control notation should go somewhere...)
+
+## What if we know something about the environment? {auto-animate="true"}
+
+Let's grossly simplify the problem:
+
+
+\begin{align}
+\text{minimize } && \sum_{t=0}^{\infty} \gamma^t \left( x_t^2 + \rho u_t^2 \right)\\
+\text{where } && x_{t+1} = a x_t + b u_t \\
+&& u_t = -k x_t
+\end{align}
+
+:::: {.columns}
+::: {.column width="50%"}
+-   Linear, scalar dynamics
+-   Linear policy
+:::
+
+::: {.column width="50%"}
+-   Quadratic cost
+-   Deterministic
+:::
+::::
+
+## Quadratic value function
+
+Trajectories are easy to compute:
+
+::: {layout="[[1,0.2,1]]"}
+\begin{align}
+x_{t+1} &= a x_t + b u_t\\
+u_t &= -k x_t
+\end{align}
+
+$$\implies$$
+
+\begin{align}
+x_{t+1} &= \left( a - bk \right)x_t \\
+&\vdots\\
+x_{t+1} &= \left( a - bk \right)^{t+1} x_0 \\
+u_t &= -k \left( a - bk \right)^t x_0
+\end{align}
+:::
+
+## Quadratic value function
+
+Returns are easy to compute:
+
+\begin{align}
+\sum_{t=0}^{\infty} \gamma^t \left( x_t^2 + \rho u_t^2 \right) &= x_0^2 + \gamma (a-bk)^2 x_0^2 + \gamma^2 (a-bk)^4 x_0^2 + \ldots\\
+&+ \rho k^2 x_0^2 + \gamma \rho k^2 (a-bk)^2 x_0^2 + \ldots \\
+&= \sum_{t=0}^{\infty} \gamma^t (a-bk)^{2t} (1 + \rho k^2) x_0^2
+\end{align}
+
+::: aside
+\begin{align}
+x_{t+1} &= \left( a - bk \right)^{t+1} x_0\\
+u_t &= -k \left( a - bk \right)^t x_0
+\end{align}
+:::
+
+## Quadratic value function
+
+By properties of geometric series:
+
+\begin{align}
+\text{return} &= \sum_{t=0}^{\infty} \gamma^t (a-bk)^{2t} (1 + \rho k^2) x_0^2 \\
+&= \frac{1 + \rho k^2}{1 - \gamma\left(a - bk\right)^2} x_0^2
+\end{align}
+
+::: aside
+$\sum_{i = 0}^{\infty} \alpha \beta^i = \alpha \frac{1}{1 - \beta}$
+:::
+
+## Quadratic value function
+
+A 1-D optimization problem in $K$:
+
+::: {layout="[[1,1]]" layout-valign="bottom"}
+$$\min_{K} \frac{1 + \rho K^2}{1 - \gamma\left(a - bK\right)^2}$$
+
+![](figs/desmos-controller.png){width="60%"}
+:::
+
+::: aside
+[\[To graph\]](https://www.desmos.com/calculator/vgnchtuqys)
+:::
+
+------------------------------------------------------------------------
+
+::: {layout="[[1,1], [1,1], [1,1]]"}
+$\gamma = 1$
+
+$\gamma = 0$
+
+![](figs/desmos-controller.png){width="50%"}
+
+![](figs/desmos-gamma0-controller.png){width="50%"}
+
+![](figs/desmos-stable.png){width="50%"}
+
+![](figs/desmos-unstable.png){width="50%"}
+:::
+
+## Wait, are linear controllers optimal?
+
+YES!
+
+\begin{align}
+\min_{u_0, u_1, \ldots} && \sum_{t=0}^{\infty} \gamma^t \left( x_t^2 + \rho u_t^2 \right)\\
+\text{where } && x_{t+1} = a x_t + b u_t \\
+&& \require{enclose}\enclose{horizontalstrike}[mathcolor="red"]{\color{black}{u_t = -k x_t}}
+\end{align}
+
+## 
+
+Define $$V^{\star}(x) = \min_{\begin{align} u_0, & u_1, \ldots \\ x_{t+1} &= a x_t + b u_t \\ x_0 &= x \end{align}} \sum_{t=0}^{\infty} \gamma^t \left( x_t^2 + \rho u_t^2 \right)$$
+
+$$\Downarrow \text{(fact)}$$
+
+$$V^{\star}(x) = P x^2$$
+
+The optimal value function is:
+
+1.  Quadratic
+2.  Parameterized by some $P > 0$
+
+## 
+
+Bellman gives us a single variable problem: $$P x^2 = \min_{u} \left\{ x^2 + \rho u^2 + \gamma P\left( a x + b u \right)^2 \right\}$$
+
+$$\Downarrow \text{solve } 0 = \nabla_u \left\{ \cdots \right\}$$
+
+$$u = -\frac{\gamma a b P}{\rho + \gamma b^2 P} x$$
+
+$$\Downarrow$$
+
+Linear controller...but what is $P$?
+
+## 
+
+Plug $u$ back into the Bellman equation to find: $$P = 1 + \gamma a^2 P - \frac{\gamma^2 (a b P)^2}{\rho + \gamma b^2 P}$$
+
+A fixed point in $P$!
+
+Finding this fixed point in **parameter space** gives the optimal solution in value **function space**
+
+## {background-iframe="https://www.desmos.com/calculator/ghaskgjvc0?embed"}
+
+
+## Recap lessons from RL section
+
+(placeholder + 5 min break slide)
+
+
+# Process control
+
+## 
+
+A common control task is to bring a system to a constant value:
+
+:::: {.columns}
+::: {.column width="50%"}
+1.  Cruise control
+2.  Temperature
+3.  Concentrations
+:::
+
+::: {.column width="50%"}
+4.  Levels
+5.  Moisture
+6.  Etc...
+:::
+::::
+
+![](figs/feedback_diagram.png){height="200"}
+
+# Linear policies
+
+# PID control
+
+*"Based on a survey of over eleven thousand controllers in the refining, chemicals and pulp and paper industries, **97% of regulatory controllers utilize a PID** feedback control algorithm."*
+
+-- @desborough2002IncreasingCustomer, also @aastrom2021feedback
+
+## 
+
+::: {layout="[[1,1]]"}
+![](figs/anim_impulse_u.gif)
+
+![](figs/anim_impulse_y.gif)
+:::
+
+The system settles at zero...how do we get it to settle somewhere else?
+
+## Proportional control
+
+$y_{sp}=$ desired value (sp = "setpoint")
+
+$y =$ measured value
+
+$e = y_{sp} - y$
+
+We want $e \to 0$ as $t \to \infty$
+
+## Proportional control
+
+Consider the policy $$u = k_p e$$
+
+::: {layout="[[1,1]]"}
+![](figs/anim_P_u.gif)
+
+![](figs/anim_P_y.gif)
+:::
+
+## Proportional-Integral control
+
+Consider the policy $$u(t) = k_p e(t) + k_i \int_{0}^{t} e(\tau) d \tau$$
+
+::: {layout="[[1,1]]"}
+![](figs/anim_PI_u.gif)
+
+![](figs/anim_PI_y.gif)
+:::
+
+## The magic of integral action
+
+1.  Assume that $k_p, k_i$ are chosen such that the system is stable
+2.  Then $u(t) \to \bar{u}$, $e(t) \to \bar{e}$
+3.  We can write $$ \bar{u} = k_p \bar{e} + k_i \lim_{t \to \infty} \int_{0}^{t} e(\tau) d \tau$$
+4.  The integral term must converge
+5.  Zero offset!
+
+## Proportional-Integral-Derivative control
+
+:::: {.columns}
+::: {.column width="40%"}
+![](figs/PID_Compensation_Animated.gif)
+:::
+
+::: {.column width="60%"}
+**Proportional:** Go towards the setpoint
+
+**Integral:** Stay at the setpoint
+
+**Derivative:** Don't overshoot the setpoint
+:::
+::::
+
+::: aside
+[PID controller (Wikipedia)](https://en.wikipedia.org/w/index.php?title=Proportional–integral–derivative_controller&oldid=1221531928)
+:::
+
+##  {auto-animate="true"}
+
+PID controllers are great for tasks with a single input and single output.
+
+![](figs/feedback_SISO.png)
+
+##  {auto-animate="true"}
+
+But often times we want to control a system with many input and output variables.
+
+![](figs/feedback_MIMO.png)
+
+## Can we tune controllers independently?
+
+Take two **independent** processes and design individual controllers
+
+![](figs/independent_loops.png)
+
+## Can we tune controllers independently?
+
+Those controllers can be disastrous if one process feeds into the other
+
+![](figs/coupled_loop.png)
+
+## Can we tune controllers independently?
+
+... sort of
+
+:::: {.columns}
+::: {.column width="50%"}
+![](figs/astrom_pid.png)
+:::
+
+::: {.column width="50%"}
+::: {layout="[[1,1,1],[1]]"}
+![](figs/astrom.png){height="125"}
+
+![](figs/johansson.png){height="125"}
+
+![](figs/wang.png){height="125"}
+
+![](figs/decoupled_screenshot.png){height="100"}
+:::
+:::
+::::
+
+We need a scalable approach to handling loop interactions!
+
+
+
+
+# LQR
+
+
+##
+
+\begin{align}
+\min_{u_0, u_1, \ldots} && \sum_{t=0}^{\infty} \gamma^t \left( x_{t}^{T} M x_t +  u_{t}^{T} R u_t \right)\\
+\text{where } && x_{t+1} = A x_t + B u_t \\
+\end{align}
+
+-   **Linear:** Dynamics
+-   **Quadratic:** Cost (and value)
+-   **Regulator:** Keep state $x_t$ around $0$
+
+We already solved this in the scalar case!
+
+::: aside
+$M \geq 0$, $R >$, $\gamma \in [0,1]$
+:::
+
+## General solution {auto-animate="true"}
+
+1.  There is $P > 0$ such that $V^\star (x) = x^T P x$. Then via the **Bellman equation** $$x_{t}^{T} P x_t = \min_{u} \left\{ x_{t}^{T} M x_t +  u_{t}^{T} R u_t + \gamma \left( A x + B u \right)^{T} P \left( A x + B u \right) \right\}$$
+
+## General solution {auto-animate="true"}
+
+1.  Apply the **Bellman equation** with $V^\star (x) = x^T P x$
+
+## General solution {auto-animate="true"}
+
+1.  Apply the **Bellman equation** with $V^\star (x) = x^T P x$
+2.  Enforce $$0 = \nabla_u \left\{ \cdots \right\}$$
+
+## General solution {auto-animate="true"}
+
+1.  Apply the **Bellman equation** with $V^\star (x) = x^T P x$
+2.  Enforce $0 = \nabla_u \left\{ \cdots \right\}$
+3.  Obtain $u = -K x$ where $$K = \gamma \left( R + \gamma B^T P B \right)^{-1} B^T P A$$
+
+## General solution {auto-animate="true"}
+
+1.  Apply the **Bellman equation** with $V^\star (x) = x^T P x$
+2.  Enforce $0 = \nabla_u \left\{ \cdots \right\}$
+3.  Obtain $u = - \gamma \left( R + \gamma B^T P B \right)^{-1} B^T P A x$
+4.  $P$ satisfies the **Discrete Algebraic Riccati Equation** $$P = M + \gamma A^T P A - \gamma^2 A^T P B \left( R + \gamma B^T P B \right)^{-1} B^T P A$$
+
+## 
+
+-   LQR is a tidy and globally optimal solution for controlling multivariable systems!
+
+-   It comes standard in any control systems library
+
+``` {.julia code-line-numbers="6-8"}
+using ControlSystems
+
+Pd = c2d(ss(P),ts)
+A, B = Pd.A, Pd.B
+M, R = I, I
+
+K = lqr(Discrete, A, B, M, R)
+
+u(x,t)  = -K*x
+```
+
+::: aside
+Example is in the Julia package [ControlSystems.jl](https://juliacontrol.github.io/ControlSystems.jl/dev/). Other options include Matlab's [Control System Toolbox](https://www.mathworks.com/products/control.html), or [Python Control Systems Library](https://python-control.readthedocs.io/en/latest/index.html).
+:::
+
+## Aside about discounting
+
+Standard LQR solvers: $(A, B, M, R) \to K$
+
+Discounted LQR: Use $$\left( \sqrt{\gamma} A, B, M, \frac{1}{\gamma} R \right)$$
+
+As $\gamma \to 0$...
+
+-   "Ignore the state transition matrix"
+-   "Apply infinite weight to control actions"
+-  ...Unstable controller
+
+
+## 
+
+:::: {.columns}
+::: {.column width="50%"}
+![](figs/lqr_disturbance.png)
+:::
+
+::: {.column width="50%"}
+- The controller quickly brings the system to $0$
+- A random disturbance in $u_2$ occurs at $t = 15$, affecting $y_1, y_2$
+- The controller brings $y_1$ and $y_2$ back to equilibrium
+:::
+::::
+
+## Globally optimal?
+
+All systems are subject to constraints:
+
+-   Finite resources & money
+-   Limited actuation
+
+LQR assumes:
+
+-   Any control action is permissible
+-   Any intermediate state is acceptable
+
+## Globally optimal?
+
+Consider the system $$x_{t+1} = \begin{bmatrix} 1 & 1\\ 0 & 1 \end{bmatrix} x_t + \begin{bmatrix} 1 \\ 0.5 \end{bmatrix} u_t$$
+
+Unstable $\to$ control is needed to achieve equilibrium
+
+## Globally optimal?
+
+LQR, business as usual
+
+![](figs/lqr_unconstrained.png){fig-align="center"}
+
+## Globally optimal?
+
+Suppose only actions in the set $\left\{ u \colon \lVert u \rVert_{\infty} \leq 1 \right\}$ are possible
+
+And we want the states to stay in $\left\{ x \colon \lVert x \rVert_{\infty} \leq 5 \right\}$
+
+![](figs/lqr_constrained.png){fig-align="center"}
+
+## Globally optimal?
+
+The actions can start out feasible, then become infeasible later
+
+![](figs/lqr_constrained_later.png){fig-align="center"}
+
+## Locally optimal
+
+![](figs/lqr_constrainedSS.png){height="400" fig-align="center"}
+
+::: aside
+See @borrelli2017predictive or [slides](https://kwonlecture.snu.ac.kr/wp-content/uploads/2019/08/MPC_Course_v1.pdf)
+:::
+
+
+
+## Break
+
+![](figs/Dunning-Kruger.jpg){fig-align="center"}
+
+
+
+# Nonlinear policies
+
+##  {auto-animate="true"}
+
+::: {style="margin-top: 300px; margin-left: 100px;"}
+What if a controller could anticipate an obstacle?
+:::
+
+##  {auto-animate="true"}
+
+What if a controller could anticipate an obstacle?
+
+![](figs/lane_change.png){.r-stretch fig-align="center"}
+
+
+## 
+
+From this...
+
+![](figs/anim_dip_no-obstacle.gif){.r-stretch fig-align="center"}
+
+
+
+## 
+
+To this...
+
+![](figs/anim_dip.gif){.r-stretch fig-align="center"}
+
+
+## Anticipating constraints is inherently nonlinear
+
+Suppose $x_t$ is "close" to upper constraint $c$:
+
+- Take conservative actions near constraint
+- More freedom away from constraints
+
+LQR:
+
+- Follow $u_t = -K x_t$ no matter what
+
+
+
+# Model predictive control
+
+
+## Problem formulation
+
+
+MPC is a common-sense strategy of making decisions by predicting the future
+
+\begin{align}
+\min_{u_0, u_1, \ldots u_{N-1}} \quad & \sum_{t=0}^{N-1} x_{t}^{T} M x_t +  u_{t}^{T} R u_t \\
+\text{where } \quad & x_{t+1} = A x_t + B u_t \\
+& x_t \in \mathcal{X} \\
+& u_t \in \mathcal{U}
+\end{align}
+
+::: aside
+$\mathcal{X}, \mathcal{U}$ are often box constraints: $u_{\min} \leq u_t \leq u_{\max} \forall t$.
+Like LQR, $M \geq 0, R > 0$.
+:::
+
+
+## Problem formulation
+
+Applying the optimal inputs $u_0^\star, u_1^\star, \ldots$ is an **open-loop** strategy
+
+- Model errors compound
+- Unexpected disturbances will go unchecked
+- Will need to solve the MPC problem after $N$ time steps anyway
+
+
+
+## The receding horizon idea
+
+At each time step, re-initialize the MPC problem with the state $s_t$ from the environment:
+
+
+\begin{align}
+\min_{u_0, u_1, \ldots u_{N-1}} \quad & \sum_{k=0}^{N-1} x_{k}^{T} M x_k +  u_{}^{T} R u_k \\
+\text{where } \quad & \bbox[#FF9999,2pt]{x_0 = s_t} \\
+& x_{k+1} = A x_k + B u_k \\
+& x_k \in \mathcal{X} \\
+& u_k \in \mathcal{U}
+\end{align}
+
+
+## The receding horizon idea
+
+MPC controller
+
+1. Initialize state $x_0 = s$
+2. Solve the MPC optimization problem
+3. Apply $u_0^\star$ to the system
+4. Update system state $s \leftarrow s'$
+
+## The receding horizon idea
+
+
+![](figs/receding_horizon.png){width=500 fig-align="center"}
+
+::: aside
+See @borrelli2017predictive, Chapter 12
+:::
+
+
+##
+
+::: {layout="[[1,1]]" layout-valign="bottom"}
+![](figs/mpc_closedlooptraj1.png){height=350}
+
+![](figs/mpc_closedlooptraj2.png){height=400}
+:::
+
+Solid - realized closed-loop trajectories
+
+Dash - predicted trajectory
+
+::: aside
+See @borrelli2017predictive, Chapter 12
+:::
+
+##
+
+::: {layout="[[1,1],[1,1]]" layout-halign="center"}
+LQR
+
+MPC
+
+![](figs/lqr_constrainedSS.png){height="400"}
+
+![](figs/mpc_constrainedSS.png){height="400"}
+:::
+
+
+## MPC control law is nonlinear
+
+
+![](figs/mpc_PWA.png)
+
+
+## Why? {.center}
+
+MPC = Multi-parametric quadratic programming
+
+## {auto-animate="true"}
+
+
+Original problem:
+
+\begin{align}
+\min_{u_0, u_1, \ldots u_{N-1}} \quad & \sum_{k=0}^{N-1} x_{k}^{T} M x_k +  u_{}^{T} R u_k \\
+\text{where } \quad & x_0 = s_t \\
+& x_{k+1} = A x_k + B u_k \\
+& x_k \in \mathcal{X} \\
+& u_k \in \mathcal{U}
+\end{align}
+
+
+## {auto-animate="true"}
+
+Unroll the dynamics:
+
+::: {.r-stack}
+$$x_{k+1} = A x_k + B u_k$$
+:::
+
+## {auto-animate="true"}
+
+Unroll the dynamics:
+
+
+::: {.r-stack}
+
+::: {.fragment .fade-in-then-out}
+$$x_1 = B u_0$$
+:::
+
+::: {.fragment .fade-in-then-out}
+$$x_2 = B u_1 + A B u_0$$
+:::
+
+
+
+::: {.fragment .fade-in-then-out}
+$$x_3 = B u_2 + A B u_1 + A^2 B u_0$$
+:::
+
+::: {.fragment .fade-in-then-out}
+$$x_n =
+\begin{bmatrix}
+B & A B & \cdots & A^{N-1} B
+\end{bmatrix}
+\begin{bmatrix}
+u_{N-1} \\ u_{N-2} \\ \vdots \\ u_0
+\end{bmatrix}$$
+:::
+:::
+
+::: aside
+$x_{k+1} = A x_k + B u_k$ and $x_0 = 0$ for ease
+:::
+
+## {auto-animate="true"}
+
+Algebra:
+
+\begin{align}
+\min_{U} \quad & \frac{1}{2} U^T H U + s_t^T F U \\
+\text{where } \quad & G U \leq W + E s_t \\
+\end{align}
+
+
+See @bemporad2002ExplicitLinear
+
+
+## {auto-animate="true"}
+
+KKT conditions:
+
+$U^\star$ and associated Lagrange multipliers are affine in $s_t$
+
+
+![](figs/mpc_explicit.png)
+
+
+## MPC = Continuous piecewise affine
+
+
+::: {layout="[[1,0.2,1]]" layout-valign="center"}
+![MPC control law](figs/mpc_surface.png){height=250}
+
+<div style="font-size:150px">&#x1F91D;</div>
+
+![ReLU DNN](figs/relu_surface.png){height=250}
+:::
+
+::: aside
+See @bemporad2002ExplicitLinear, @karg2020EfficientRepresentation, @montufar2014number
+:::
+
+
+## Stability issues {.center}
+
+*"In the engineering literature it is often assumed (tacitly and incorrectly) that a system with optimal control law is necessarily stable."*
+
+-- @kalman1960contributions
+
+## {.center}
+
+
+Repeatedly implementing a finite horizon solution on an infinite horizon problem leads to "surprises"
+
+- Infeasibility
+- Instability
+
+
+##
+
+How can we solve an infinite horizon optimal control problem with finite resources?
+
+
+1. Terminal constraint
+2. Terminal cost
+
+
+\begin{align}
+\min_{u_0, u_1, \ldots u_{N-1}} \quad & \sum_{k=0}^{N-1} \left( x_{k}^{T} M x_k +  u_{k}^{T} R u_k \right) + \bbox[#FF9999,2pt]{x_{N}^{T} P x_{N}}\\
+\text{where } \quad & x_0 = s_t \\
+& x_{k+1} = A x_k + B u_k \\
+& x_k \in \mathcal{X}, u_k \in \mathcal{U} \\
+& \bbox[#FF9999,2pt]{x_{N} \in \mathcal{X}_f}
+\end{align}
+
+
+
+## {.center}
+
+How to design terminal cost?
+
+LQR!
+
+
+1. Obtain $P$ by solving $\texttt{lqr}(A, B, M, R)$
+2. Embed a fictitious LQR controller $u_t = -K x_t$ into MPC after $N_c$ time steps
+
+
+## Final objective
+
+
+
+
+\begin{align}
+\min_{u_0, u_1, \ldots u_{N_c - 1}} \quad & \sum_{k=0}^{N-1} \left( x_{k}^{T} M x_k +  u_{k}^{T} R u_k \right) + x_{N}^{T} P x_{N}\\
+\text{where }\quad & x_0 = s_t \\
+& x_{k+1} = A x_k + B u_k \\
+& x_k \in \mathcal{X},\quad u_k \in \mathcal{U} \\
+& u_{k} = -K x_k,\quad N_c \leq k < N
+\end{align}
+
+::: {.r-fit-text}
+Mimic infinite horizon behavior
+:::
+
+## 
+
+![](figs/cl.gif){fig-align="center"}
+
+
+
+
+
+
+
+
+
+
+
+# MPC + RL
+
+
+![](figs/rl_mpc_tree.png){fig-align="center"}
+
+
+::: aside
+@arroyo2022ReinforcedModel
+:::
+
+
+## Main motivation
+
+:::: {.columns}
+::: {.column width="50%"}
+MPC
+
+
+
+<ul style="list-style-type: '+ ';">
+  <li>Safety by design</li>
+  <li>Modularity</li>
+</ul>
+
+<ul style="list-style-type: '- ';">
+  <li>Manual design</li>
+  <li>Rigid</li>
+</ul>
+
+
+:::
+
+::: {.column width="50%"}
+RL
+
+<ul style="list-style-type: '+ ';">
+  <li>Model-free</li>
+  <li>Flexible objectives</li>
+</ul>
+
+<ul style="list-style-type: '- ';">
+  <li>Safety constraints</li>
+  <li>Slowish learning</li>
+</ul>
+
+:::
+
+::::
+
+
+## MPC + value function
+
+::: {.r-stack}
+::: {.fragment .fade-in-then-out}
+\begin{align}
+\min_{u_0, u_1, \ldots u_{N - 1}} \quad & \sum_{k=0}^{N-1} \ell(x_k, u_k) \phantom{\quad + \overbrace{V_{\theta}(x_N)}^{\text{Learnable residual}}}\\
+\text{where }\quad & x_0 = s_t \\
+& x_{k+1} = f(x_k, u_k) \\
+& \underbrace{x_k \in \mathcal{X},\quad u_k \in \mathcal{U}}_{\text{Prior engineering}} \\
+\end{align}
+:::
+
+::: {.fragment .fade-in-then-out}
+\begin{align}
+\min_{u_0, u_1, \ldots u_{N - 1}} \quad & \sum_{k=0}^{N-1} \ell(x_k, u_k)\quad + \overbrace{V_{\theta}(x_N)}^{\text{Learnable residual}}\\
+\text{where }\quad & x_0 = s_t \\
+& x_{k+1} = f(x_k, u_k) \\
+& \underbrace{x_k \in \mathcal{X},\quad u_k \in \mathcal{U}}_{\text{Prior engineering}} \\
+\end{align}
+:::
+
+::: {.fragment .fade-in}
+\begin{align}
+\min_{u_0, u_1, \ldots u_{N - 1}} & \sum_{k=0}^{N-1} \ell(x_k, u_k) + V_{\theta}(x_N)\\
+\text{where }\quad & x_0 = s_t \\
+& x_{k+1} = f(x_k, u_k) \\
+& x_k \in \mathcal{X},\quad u_k \in \mathcal{U} \\
+\end{align}
+:::
+:::
+
+
+
+## Break
+
+![](figs/Chaotic+Grad+Student+HiRes.jpg){fig-align="center"}
+
+
+
+# Implementation
+
+
+
+## MPC frameworks 
+
+
+::: {layout="[[1,1,1],[1,1],[1,1]]" layout-valign="bottom"}
+
+![@open2020](figs/package_optimization-engine.png){height=100}
+
+![@fiedler2023DompcFAIR](figs/package_dompc.png){height=150}
+
+![[Model Predictive Control Toolbox](https://www.mathworks.com/products/model-predictive-control.html)](figs/package_mathworks.png){height=100}
+
+![@verschueren2022AcadosModulara](figs/package_acados.png){height=50}
+
+![@englert2019SoftwareFramework](figs/package_grampc.png){height=50}
+
+![@chen2019MATMPCMATLAB](figs/package_matmpc.png){height=50}
+
+![[MPC Tools](https://sites.engineering.ucsb.edu/~jbraw/software/mpctools/examples/index.html)](figs/package_mpctools.png){height=50}
+:::
+
+## MPC frameworks
+
+[do-mpc](https://www.do-mpc.com/en/latest/):
+
+:::: {.columns}
+::: {.column}
+- Open source
+- Modular
+:::
+
+::: {.column}
+- Python interface
+- Fast
+:::
+::::
+
+::: {layout="[[1,1]]" layout-valign="center"}
+
+![@fiedler2023DompcFAIR](figs/package_dompc.png){height=150}
+
+![@Andersson2019](figs/casadi_logo.png){height=150}
+
+:::
+
+
+## Example: Triple mass spring system 
+
+
+
+::: {layout="[[1,0.2,1]]" layout-valign="center"} 
+![](figs/anim_disc_3d_uncontrolled.gif)
+
+$$\rightarrow$$
+
+![](figs/anim_disc_3d_ctrl_motor.gif)
+:::
+
+::: aside
+See [notebook](https://github.com/do-mpc/do-mpc/blob/master/documentation/source/getting_started.ipynb) from [do-mpc](https://www.do-mpc.com/en/latest/index.html) for full code samples. We only show snippets of the key destinations.
+:::
+
+## Create model
+
+``` {.python code-line-numbers="7,9,10"}
+import do_mpc
+from casadi import *
+
+model_type = 'continuous' # either 'discrete' or 'continuous'
+model = do_mpc.model.Model(model_type)
+
+dphi = model.set_variable(var_type='_x', var_name='dphi', shape=(3,1))
+# Two states for the desired (set) motor position:
+phi_m_1_set = model.set_variable(var_type='_u', var_name='phi_m_1_set')
+phi_m_2_set = model.set_variable(var_type='_u', var_name='phi_m_2_set')
+```
+
+
+![](figs/triple_mass_spring.png){height=200 fig-align="center"}
+
+## Right-hand-side equation
+
+Define the states, inputs, parameters, and function composing an ODE $$\dot{x} = f(x, u)$$
+
+``` {.python code-line-numbers="1,14,15"}
+Theta_1 = model.set_variable('parameter', 'Theta_1') 
+Theta_2 = model.set_variable('parameter', 'Theta_2')
+Theta_3 = model.set_variable('parameter', 'Theta_3')
+
+c = np.array([2.697,  2.66,  3.05, 2.86])*1e-3
+d = np.array([6.78,  8.01,  8.82])*1e-5
+
+dphi_next = vertcat(
+    -c[0]/Theta_1*(phi_1-phi_1_m)-c[1]/Theta_1*(phi_1-phi_2)-d[0]/Theta_1*dphi[0],
+    -c[1]/Theta_2*(phi_2-phi_1)-c[2]/Theta_2*(phi_2-phi_3)-d[1]/Theta_2*dphi[1],
+    -c[2]/Theta_3*(phi_3-phi_2)-c[3]/Theta_3*(phi_3-phi_2_m)-d[2]/Theta_3*dphi[2],
+)
+
+model.set_rhs('dphi', dphi_next)
+model.setup()
+```
+
+## Create controller
+
+``` {.python code-line-numbers="1,9"}
+mpc = do_mpc.controller.MPC(model)
+
+setup_mpc = {
+    'n_horizon': 20,
+    't_step': 0.1,
+    'n_robust': 1,
+    'store_full_solution': True,
+}
+mpc.set_param(**setup_mpc)
+```
+(Defining constraints, the objective function, and even uncertain parameters, all follow a similar workflow
+)
+
+``` {.python}
+mpc.setup()
+```
+
+## Define simulator
+
+Either use the same model inside the MPC or define a different model to simulate the "true" system:
+
+- Simplified MPC model
+- Complex "true" simulator model
+
+
+``` {.python}
+simulator = do_mpc.simulator.Simulator(model)
+```
+
+## Run the control loop
+
+``` {.python}
+for i in range(20):
+    u0 = mpc.make_step(x0)
+    x0 = simulator.make_step(u0)
+```
+![](figs/anim_disc.gif){fig-align="center"}
+
+## 
+
+Creating these gifs is easy with do-mpc's `Graphics` and `Data` modules
+
+``` {.python}
+mpc_graphics = do_mpc.graphics.Graphics(mpc.data)
+sim_graphics = do_mpc.graphics.Graphics(simulator.data)
+```
+
+![](figs/do_mpc_api.png){fig-align="center"}
+
+
+## do-mpc summary
+
+![](figs/do_mpc_flow_sheet.png){fig-align="center"}
+
+
+## RL frameworks 
+
+
+
+::: {layout="[[1,1,1],[1,1],[1,1]]" layout-valign="bottom"}
+![@raffin2021StableBaselines3Reliable](figs/package_stable.png){height=100}
+
+![@huang2022CleanRLHighquality](figs/package_cleanrl.png)
+
+![[Spinning Up](https://github.com/openai/spinningup)](figs/package_spinup.png){height=100}
+
+![@hoffman2022AcmeResearch](figs/package_acme.png){height=50}
+
+![@bou2023TorchRLDatadriven](figs/package_torchrl.png){height=50}
+
+![@weng2022TianshouHighly](figs/package_tianshou.png){height=50}
+
+![@liang2018RLlibAbstractions](figs/package_rllib.png){height=50}
+
+:::
+
+
+<div style="position:absolute; right:0;"> <small>(...A really long list [here](https://github.com/wwxFromTju/awesome-reinforcement-learning-lib))</small> </div>
+
+
+## RL frameworks 
+
+[CleanRL](https://docs.cleanrl.dev):
+
+:::: {.columns}
+::: {.column}
+- Self-contained implementations
+- Rapid prototyping
+:::
+
+::: {.column}
+- Thorough documentation and benchmarking
+- `Gym` for environments and `wandb` for tracking
+:::
+::::
+
+::: {layout="[[1,1]]" layout-valign="center"}
+
+![@towers_gymnasium_2023,@brockman2016OpenAIGym](figs/package_gymnasium.png){height=100}
+
+![@biewald2020experiment](figs/package_wandb.png){height=100}
+
+:::
+
+
+##
+
+:::: {.columns}
+::: {.column}
+CleanRL:
+
+- 1 algorithm gets 1 file
+- Read, learn, and modify in a linear fashion
+- 300-400 lines of code
+  - Including all utilities
+:::
+
+::: {.column}
+Modular libraries:
+
+![](figs/sb3_loc.png)
+:::
+::::
+
+
+## {.center}
+
+Like with the MPC packages, we're choosing the best one for our purposes---the other ones are absolutely worth looking into!
+
+## Break?
+
+![](videos/atari_breakout.gif){height=350 fig-align="center"}
+
+::: aside
+[Open RL Benchmark](https://wandb.ai/openrlbenchmark/openrlbenchmark/reports/Atari-CleanRL-s-DQN--VmlldzoxNjk3NjYx) [@huang2024OpenRL]
+:::
+
+
+## Combining RL and MPC
+
+Recall what we're after:
+
+\begin{align}
+\min_{u_0, u_1, \ldots u_{N - 1}} \quad & \sum_{k=0}^{N-1} \ell(x_k, u_k) \quad + \overbrace{V_{\theta}(x_N)}^{\text{Learnable residual}}\\
+\text{where }\quad & x_0 = s_t \\
+& x_{k+1} = f(x_k, u_k) \\
+& \underbrace{x_k \in \mathcal{X},\quad u_k \in \mathcal{U}}_{\text{Prior engineering}} \\
+\end{align}
+
+## Combining RL and MPC
+
+
+:::: {.columns}
+::: {.column}
+CleanRL:
+
+1. Value function learning
+2. Environment implementation
+:::
+
+::: {.column}
+do-mpc:
+
+1. Optimization module
+2. Simulation
+:::
+::::
+
+
+## 1. RL value function in do-mpc
+
+Value function training
+
+``` {.python code-line-numbers="1,7,8,13,18"}
+data = rb.sample(args.batch_size)
+with torch.no_grad():
+    next_state_actions, next_state_log_pi, _ = actor.get_action(data.next_observations)
+    qf1_next_target = qf1_target(data.next_observations, next_state_actions)
+    qf2_next_target = qf2_target(data.next_observations, next_state_actions)
+    min_qf_next_target = torch.min(qf1_next_target, qf2_next_target) - alpha * next_state_log_pi
+    next_q_value = (data.rewards.flatten() + 
+        (1 - data.dones.flatten()) * args.gamma * (min_qf_next_target).view(-1))
+
+qf1_a_values = qf1(data.observations, data.actions).view(-1)
+qf2_a_values = qf2(data.observations, data.actions).view(-1)
+qf1_loss = F.mse_loss(qf1_a_values, next_q_value)
+qf2_loss = F.mse_loss(qf2_a_values, next_q_value)
+qf_loss = qf1_loss + qf2_loss
+
+# optimize the model
+q_optimizer.zero_grad()
+qf_loss.backward()
+q_optimizer.step()
+```
+
+## 1. RL value function in do-mpc
+
+Export value function to do-mpc:
+
+:::: {.columns}
+::: {.column  width="70%"}
+1. Export PyTorch model to [ONNX](https://onnx.ai) using `torch.onnx.export()`
+2. Export ONNX model to CasADi `do_mpc.sysid.ONNXConversion()`
+
+![](figs/onnx.png){width=200}
+:::
+
+::: {.column  width="30%"}
+![@fiedler2023DompcFAIR](figs/do_mpc_elements.png)
+:::
+::::
+
+
+## 1. RL value function in do-mpc
+
+Implement MPC with terminal value function:
+
+``` {.python code-line-numbers="1,3,6,12,17"}
+mpc = do_mpc.controller.MPC(model)
+
+mpc.settings.n_horizon = 1
+lterm = model.aux['cost'] 
+
+terminal_converter = do_mpc.sysid.ONNXConversion(value_onnx)
+def terminal_casadi(x):
+    terminal_converter.convert(x = x.T, goal=np.zeros(x.T.shape))
+    return terminal_converter['terminal_cost']
+mterm = -terminal_casadi(model.x['x'])
+
+mpc.set_objective(lterm=lterm, mterm=mterm)
+
+mpc.bounds['lower','_u','u'] = -0.5
+mpc.bounds['upper','_u','u'] =  0.5
+
+mpc.setup()
+```
+
+## 1. RL value function in do-mpc
+
+Run MPC + value function controller in CleanRL:
+
+``` {.python code-line-numbers="2,11"}
+x0 = estimator.make_step(obs["observation"])
+action = mpc.make_step(x0)
+
+# A quick way of incorporating exploration
+with torch.no_grad():
+    if global_step % args.policy_frequency == 0: # optional: add some delay between disturbances (exploration)
+        noise = actor._explore_noise(obs).numpy()
+        action += noise
+        action = np.float32(action.clip(env.action_space.low, env.action_space.high))
+
+next_ob, reward, done, info = env.step(action)
+```
+
+Next, what is `env.step()`?
+
+
+## 2. Gym wrapper for do-mpc simulation
+
+Zooming out a bit, a basic RL loop looks like this:
+
+``` {.python code-line-numbers="3,7,8"}
+import gymnasium as gym
+
+env = gym.make("LunarLander-v2", render_mode="human")
+observation, info = env.reset()
+
+for _ in range(1000):
+    action = env.action_space.sample()  # agent policy that uses the observation and info
+    observation, reward, terminated, truncated, info = env.step(action)
+
+    if terminated or truncated:
+        observation, info = env.reset()
+
+env.close()
+```
+
+##
+
+Environments follow a basic blueprint:
+
+``` {.python code-line-numbers="9-11"}
+from gymnasium import spaces
+
+class CustomEnv(gym.Env):
+  def __init__(self, arg1, arg2, ...):
+    super(CustomEnv, self).__init__()
+    self.action_space = spaces.Discrete(N_DISCRETE_ACTIONS)
+    self.observation_space = spaces.Box(low=0, high=255, shape=(HEIGHT, WIDTH, N_CHANNELS), dtype=np.uint8)
+
+  def step(self, action):
+    ...
+    return observation, reward, done, info
+  def reset(self):
+    ...
+    return observation
+  def render(self, mode='human'):
+    ...
+  def close (self):
+    ...
+```
+
+##
+
+Create Gym environment that queries do-mpc simulation:
+
+``` {.python code-line-numbers="5,6,14"}
+class DoMPCEnv(gym.Env):
+    """
+    Gym environment that uses do-mpc for carrying out simulations
+    """
+    def __init__(self, simulator:do_mpc.simulator.Simulator, 
+                    num_steps=100):        
+        super().__init__()
+        ...
+
+    def step(self, action):
+        # simplified version --- hides some processing steps
+
+        self.t += 1
+        self.state = self.simulator.make_step(action)
+        info = self._get_info()
+        reward, terminated, truncated = info["reward"], info["distance"]<0.01, self.t == self.num_steps
+
+        return self.state, reward, terminated, truncated, info
+    ...
+```
+
+## Example: Oscillating masses
+
+State: Position and velocity of each mass
+
+Action: Force applied to $m_2$
+
+MPC cost: $\lVert x \rVert^2$
+
+Reward: 0 if  $\lVert x \rVert_{\infty} \leq \epsilon$; $-1$ otherwise
+
+![](figs/oscillating_masses.png){height=200 fig-align="center"}
+
+
+## 
+
+
+![](figs/reward_mass.png){fig-align="center"}
+
+
+##
+
+(placeholder---hindsight experience replay and learning from sparse rewards)
+
+
+## 
+
+
+![](figs/reward_mass_HER.png){fig-align="center"}
+
+
+##
+
+::: {layout="[[1,1,1], [1,1,1], [1,1,1]]"}
+<div>
+
+</div>
+
+"Bad" model
+
+"Good" model
+
+<div>
+
+\
+\
+No relabeling
+
+</div>
+
+![](figs/masses-noHER-badmodel.gif)
+
+![](figs/masses-noHER-goodmodel.gif)
+
+
+
+<div>
+
+\
+\
+Relabeling
+
+</div>
+
+![](figs/masses-HER-badmodel.gif)
+
+![](figs/masses-HER-goodmodel.gif)
+
+:::
+
+
+
+## Studies in the literature
+
+
+
+##
+
+![](figs/Automation+Paradox.jpg){fig-align="center"}
+
+
+
+# Addendum
+
+## Nonlinear MPC problem formulation
+
+## State estimation, offset-free tracking
+
+## Differentiable MPC
+
+## Industrial control: theory vs practice
+
+(placeholder --- thinking of Michael's paper, also Siang/Sham's)
+
+# Thank you
+
+## 
+
+- Martha White & Upper Bound organizers
+- Philip Loewen
+- Bhushan Gopaluni
+- Michael Forbes
+- Shuyuan Wang
+- Thiago da Cunha Vasco
+- DAIS Lab
+- NSERC
+
+
+## Slides and code
+
+![Link: [https://github.com/NPLawrence/upperbound-tutorial](https://github.com/NPLawrence/upperbound-tutorial)](figs/qr-github.png){height=400 fig-align="center"}
+
+
+
+## References
+
+::: {#refs}
+:::
