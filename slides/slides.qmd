@@ -2164,7 +2164,7 @@ Relabeling
 
 ## Slides and code
 
-![Link: [https://github.com/NPLawrence/upperbound-tutorial](https://github.com/NPLawrence/upperbound-tutorial)](figs/qr-github.png){height=400 fig-align="center"}
+![Link: [https://github.com/NPLawrence/RL-MPC-tutorial](https://github.com/NPLawrence/RL-MPC-tutorial)](figs/qr-github.png){height=400 fig-align="center"}
 
 
 
