@@ -1,4 +1,4 @@
-# upperbound-tutorial
+# RL-MPC-tutorial
  
 Here you can find the slides and supporting code for my tutorial on [reinforcement learning and MPC at Upper Bound 2024](https://www.upperbound.ai/speakers/SPEWNJXVTAX).
 
