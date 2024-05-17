@@ -1,4 +1,8 @@
 # RL-MPC-tutorial
+
+[PDF here](./slides/slides.pdf)
+
+[HTML here](./slides/slides.html) --- download and open in your browser. (Larger file, but displays properly.)
  
 Here you can find the slides and supporting code for my tutorial on [reinforcement learning and MPC at Upper Bound 2024](https://www.upperbound.ai/speakers/SPEWNJXVTAX).
 
