@@ -2002,10 +2002,33 @@ Reward: 0 if  $\lVert x \rVert_{\infty} \leq \epsilon$; $-1$ otherwise
 ![](figs/oscillating_masses.png){height=200 fig-align="center"}
 
 
+##
+
+![](figs/reward-badmodel-n10.png)
+
+
+##
+
+![](figs/reward-goodmodel-n10.png)
+
+
+##
+
+![](figs/baseline-n10.png)
+
+
+
+##
+
+![](figs/baseline-n1.png)
+
+
+
 ## 
 
 
 ![](figs/reward_mass.png){fig-align="center"}
+
 
 
 ##
@@ -2017,6 +2040,40 @@ Reward: 0 if  $\lVert x \rVert_{\infty} \leq \epsilon$; $-1$ otherwise
 
 
 ![](figs/reward_mass_HER.png){fig-align="center"}
+
+
+
+## 
+
+
+![](figs/reward_mass_goodbad.png){fig-align="center"}
+
+
+## 
+
+
+![](figs/reward-RL-baseline-badmodel.png){fig-align="center"}
+
+
+## 
+
+
+![](figs/reward-RL-baseline-goodmodel.png){fig-align="center"}
+
+
+## 
+
+
+![](figs/reward-RL-baseline.png){fig-align="center"}
+
+
+## Highlights
+
+
+![](figs/reward_mass_HER.png){fig-align="center"}
+
+
+![](figs/reward-RL-baseline-badmodel.png){fig-align="center"}
 
 
 ##
@@ -2068,6 +2125,10 @@ Relabeling
 
 ![](figs/Automation+Paradox.jpg){fig-align="center"}
 
+
+## 
+
+![@bertsekas2022lessons](figs/alphazerobertsekas.jpg)
 
 
 # Addendum

@@ -5,12 +5,13 @@ format:
     fontsize: 14pt
     colorlinks: true
     geometry:
-      - top=5mm
+      - top=10mm
       - left=10mm
       - right=10mm
   html:
     fontsize: 18pt
     colorlinks: true
+    embed-resources: true
 ---
 
 
