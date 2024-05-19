@@ -6,7 +6,7 @@
 
 [Cheat sheet here](./slides/cheat_sheet.html)
 
-[Code here](./code)
+[Code here](https://github.com/NPLawrence/RL-MPC-tutorial/tree/main/code)
 
 ---
  
