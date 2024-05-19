@@ -6,6 +6,8 @@
 
 [Cheat sheet here](./slides/cheat_sheet.html)
 
+[Code here](./code)
+
 ---
  
 This repo contains the slides and supporting code for my tutorial on [reinforcement learning and MPC at Upper Bound 2024](https://www.upperbound.ai/speakers/SPEWNJXVTAX).
