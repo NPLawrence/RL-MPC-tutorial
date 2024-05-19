@@ -13,6 +13,7 @@ format:
         theme: [default, custom.scss]
         auto-play-media: true
         embed-resources: true
+    pdf: default
 title-slide-attributes: 
   data-background-image: figs/qr-cheatsheet.png
   data-background-size: 15%
@@ -232,7 +233,7 @@ Return is bounded across all possible trajectories $$\lvert G_t \rvert \leq \fra
 
 ## The reinforcement learning problem {auto-animate="true"}
 
-::: {style="margin-top: 200px;"}
+::: {style="margin-top: 150;"}
 $$ \text{maximize} \quad J(\pi) = \mathbb{E}_{\pi}\left[ \sum_{t=0}^{\infty} \gamma^{t}r(s_t,a_t) \right]$$
 :::
 
@@ -310,7 +311,7 @@ V^\pi (s) &= \mathbb{E}_{\pi} \left[ G_t \middle| s_t = s \right] \\
 ## What's the big deal with these magical functions?
 
 
-Similarly for $Q^\pi $...
+Similarly for $Q^\pi$...
 
 \begin{align}
 Q^\pi (s,a) &= r(s,a) + \gamma \mathbb{E}_{s' \sim p(s' | s, a)}\left[ V^\pi (s') \right]\\
@@ -393,7 +394,7 @@ Like $V^\star$, $Q^\star$ satisfies a neat optimality condition:
 
 Iterating $q^{k+1} = B(q^k)$ **may** converge to some $q$ where $q = B(q)$
 
-![](figs/fixedpoint.png){fig-align="center"}
+![](figs/fixedpoint.png){height=350 fig-align="center"}
 
 ##  {.center}
 
@@ -432,7 +433,7 @@ $$\pi^{+}(s) = \bbox[#DCD0FF,2pt]{\text{arg}\max\limits_{a}} \left\{ r(s,a) + \g
 ![](figs/pi_update.png){fig-align="center"}
 
 ::: aside
-See @bertsekas2023course
+See works by [Dimitri Bertsekas](https://www.mit.edu/~dimitrib/home.html) (most recently @bertsekas2023course)
 :::
 
 ##  {.center}
@@ -440,7 +441,7 @@ See @bertsekas2023course
 ::: {layout="[[1],[1]]"}
 To move things along we will work through some examples instead of focusing on the minutiae of common RL algorithms
 
-![](figs/rl_algs.png){fig-align="center"}
+![](figs/rl_algs.png){height=400 fig-align="center"}
 :::
 
 ::: aside
@@ -480,7 +481,7 @@ where each $q_i$ is an approximation of $Q^\pi (s,a_i)$
 @mnih2013PlayingAtari
 :::
 
-##
+## {.center}
 
 Optimization is trivial: 
 \begin{align}
@@ -614,8 +615,9 @@ DDPG [@lillicrap2015ContinuousControl], TD3 [@fujimoto2018AddressingFunction], S
 
 ## Acrobot cont'd {.center}
 
-Let's assume we have some RL oracle: Given an environment and sufficiently powerful networks, it does a reasonable job at solving the principal RL problem
+Let's assume we have some RL oracle: 
 
+*Given an environment and sufficiently powerful networks, it does a reasonable job at solving the principal RL problem*
 
 We isolate two components:
 
@@ -639,7 +641,7 @@ We isolate two components:
 -   Default: $0$ if above line; $-1$ otherwise
 -   $\ell^2$: Negative $2$-norm of
     -   normalized velocities
-    -   $-1 - \cos( q_1 )$, $1 - \cos( q_2 )$
+    -   $-1 - \cos( \theta_1 )$, $1 - \cos( \theta_2 )$
 -   Height
 -   $\ell^\infty$: Negative $\infty$-norm of
     -   Normalized velocities
@@ -657,13 +659,28 @@ We isolate two components:
 
 ![](figs/reward_l2.png){height=300 fig-align="center"}
 
+::: aside
+"gamma" = $\gamma$ (discount factor)
+:::
+
+
 ## "Height" reward
 
 ![](figs/reward_height.png){height=300 fig-align="center"}
 
+::: aside
+"gamma" = $\gamma$ (discount factor)
+:::
+
+
 ## $\ell^\infty$ reward
 
 ![](figs/reward_linf.png){height=300 fig-align="center"}
+
+::: aside
+"gamma" = $\gamma$ (discount factor)
+:::
+
 
 ## Summary, $\gamma = 0.99$ {visibility="hidden"}
 
@@ -771,7 +788,7 @@ $\ell^\infty$ reward, $\gamma = 0.95$, 5hz
 
 ## The original problem
 
-$$\text{maximize } \mathbb{E}_{\pi} \left[ \sum_{t=0}^{\infty} \gamma^t r(s_t,a_t)  \right]$$
+$$\text{maximize }\quad \mathbb{E}_{\pi} \left[ \sum_{t=0}^{\infty} \gamma^t r(s_t,a_t)  \right]$$
 
 :::: {.columns}
 ::: {.column width="50%"}
@@ -810,22 +827,42 @@ $$\text{maximize } \mathbb{E}_{\pi} \left[ \sum_{t=0}^{\infty} \gamma^t r(s_t,a_
 :::
 ::::
 
+
+## Assign some values for simplicity
+
+
+Focus on $\gamma$ and $k$:
+
+\begin{align}
+\text{minimize } && \sum_{t=0}^{\infty} \gamma^t \left( x_t^2 + u_t^2 \right)\\
+\text{where } && x_{t+1} = 1.1 x_t + 0.5 u_t \\
+&& u_t = -k x_t \\
+&& x_0 = 1.0
+\end{align}
+
+
+::: aside
+See [appendix](#gen_scalarLQR) for general formulas
+:::
+
+
+
 ## Trajectories are easy to compute
 
 
 ::: {layout="[[1,0.2,1]]"}
 \begin{align}
-x_{t+1} &= a x_t + b u_t\\
+x_{t+1} &= 1.1 x_t + 0.5 u_t\\
 u_t &= -k x_t
 \end{align}
 
 $$\implies$$
 
 \begin{align}
-x_{t+1} &= \left( a - bk \right)x_t \\
+x_{t+1} &= \left( 1.1 - 0.5 k \right)x_t \\
 &\vdots\\
-x_{t+1} &= \left( a - bk \right)^{t+1} x_0 \\
-u_t &= -k \left( a - bk \right)^t x_0
+x_{t+1} &= \left( 1.1 - 0.5 k \right)^{t+1} \\
+u_t &= -k \left( 1.1 - 0.5 k \right)^t
 \end{align}
 :::
 
@@ -834,15 +871,16 @@ u_t &= -k \left( a - bk \right)^t x_0
 
 
 \begin{align}
-\sum_{t=0}^{\infty} \gamma^t \left( x_t^2 + \rho u_t^2 \right) &= x_0^2 + \gamma (a-bk)^2 x_0^2 + \gamma^2 (a-bk)^4 x_0^2 + \ldots\\
-&+ \rho k^2 x_0^2 + \gamma \rho k^2 (a-bk)^2 x_0^2 + \ldots \\
-&= \sum_{t=0}^{\infty} \gamma^t (a-bk)^{2t} (1 + \rho k^2) x_0^2
+\sum_{t=0}^{\infty} \gamma^t \left( x_t^2 +  u_t^2 \right) &= 1 + \gamma (1.1-0.5k)^2 + \gamma^2 (1.1-0.5k)^4  + \ldots\\
+&+  k^2  + \gamma  k^2 (1.1-0.5k)^2  + \ldots \\
+&= \sum_{t=0}^{\infty} \gamma^t (1.1-0.5k)^{2t} (1 +  k^2) 
 \end{align}
 
 ::: aside
 \begin{align}
-x_{t+1} &= \left( a - bk \right)^{t+1} x_0\\
-u_t &= -k \left( a - bk \right)^t x_0
+x_{t+1} &= \left( 1.1 - 0.5 k \right)^{t+1} x_0\\
+u_t &= -k \left( 1.1 - 0.5 k \right)^t x_0 \\
+x_0 &= 1.0
 \end{align}
 :::
 
@@ -851,8 +889,8 @@ u_t &= -k \left( a - bk \right)^t x_0
 By properties of geometric series:
 
 \begin{align}
-\text{return} &= \sum_{t=0}^{\infty} \gamma^t (a-bk)^{2t} (1 + \rho k^2) x_0^2 \\
-&= \frac{1 + \rho k^2}{1 - \gamma\left(a - bk\right)^2} x_0^2
+\text{return} &= \sum_{t=0}^{\infty} \gamma^t (1.1-0.5 k)^{2t} (1 +  k^2) \\
+&= \frac{1 +  k^2}{1 - \gamma\left(1.1 - 0.5 k\right)^2} 
 \end{align}
 
 ::: aside
@@ -862,7 +900,7 @@ $\sum_{i = 0}^{\infty} \alpha \beta^i = \alpha \frac{1}{1 - \beta}$
 ## A 1-D optimization problem {auto-animate="true"}
 
 ::: {style="margin-top: 200px; margin-left: 100px;"}
-$$\min_{K} \frac{1 + \rho K^2}{1 - \gamma\left(a - bK\right)^2}$$
+$$\min_{k} \frac{1 +  k^2}{1 - \gamma\left(1.1 - 0.5 k\right)^2}$$
 :::
 
 
@@ -873,7 +911,7 @@ $$\min_{K} \frac{1 + \rho K^2}{1 - \gamma\left(a - bK\right)^2}$$
 :::: {.columns}
 ::: {.column}
 ::: {style="margin-top: 200px;"}
-$$\min_{K} \frac{1 + \rho K^2}{1 - \gamma\left(a - bK\right)^2}$$
+$$\min_{k} \frac{1 +  k^2}{1 - \gamma\left(1.1 - 0.5 k\right)^2}$$
 :::
 :::
 
@@ -917,14 +955,14 @@ System: $x_{t+1} = 1.1 x_t + 0.5 u_t$ (unstable)
 YES!
 
 \begin{align}
-\min_{u_0, u_1, \ldots} && \sum_{t=0}^{\infty} \gamma^t \left( x_t^2 + \rho u_t^2 \right)\\
+\min_{u_0, u_1, \ldots} && \sum_{t=0}^{\infty} \gamma^t \left( x_t^2 +  u_t^2 \right)\\
 \text{where } && x_{t+1} = a x_t + b u_t \\
 && \require{enclose}\enclose{horizontalstrike}[mathcolor="red"]{\color{black}{u_t = -k x_t}}
 \end{align}
 
 ## {.center}
 
-Define $$V^{\star}(x) = \min_{\begin{align} u_0, & u_1, \ldots \\ x_{t+1} &= a x_t + b u_t \\ x_0 &= x \end{align}} \sum_{t=0}^{\infty} \gamma^t \left( x_t^2 + \rho u_t^2 \right)$$
+Define $$V^{\star}(x) = \min_{\begin{align} u_0, & u_1, \ldots \\ x_{t+1} &= a x_t + b u_t \\ x_0 &= x \end{align}} \sum_{t=0}^{\infty} \gamma^t \left( x_t^2 +  u_t^2 \right)$$
 
 $$\Downarrow \text{(fact)}$$
 
@@ -940,11 +978,11 @@ The optimal value function is:
 
 ## {.center}
 
-Bellman gives us a single variable problem: $$P x^2 = \min_{u} \left\{ x^2 + \rho u^2 + \gamma P\left( a x + b u \right)^2 \right\}$$
+Bellman gives us a single variable problem: $$P x^2 = \min_{u} \left\{ x^2 +  u^2 + \gamma P\left( a x + b u \right)^2 \right\}$$
 
 $$\Downarrow \text{solve } 0 = \nabla_u \left\{ \cdots \right\}$$
 
-$$u = -\frac{\gamma a b P}{\rho + \gamma b^2 P} x$$
+$$u = -\frac{\gamma a b P}{1 + \gamma b^2 P} x$$
 
 $$\Downarrow$$
 
@@ -952,7 +990,7 @@ Linear controller...but what is $P$?
 
 ## 
 
-Plug $u$ back into the Bellman equation to find: $$P = 1 + \gamma a^2 P - \frac{\gamma^2 (a b P)^2}{\rho + \gamma b^2 P}$$
+Plug $u$ back into the Bellman equation to find: $$P = 1 + \gamma a^2 P - \frac{\gamma^2 (a b P)^2}{1 + \gamma b^2 P}$$
 
 A fixed point in $P$!
 
@@ -2317,6 +2355,12 @@ See @bemporad2002ExplicitLinear, @karg2020EfficientRepresentation, @montufar2014
 
 (placeholder --- thinking of Michael's paper, also Siang/Sham's)
 
+
+
+
+
+
+
 # Thank you
 
 ## 
@@ -2338,15 +2382,75 @@ See @bemporad2002ExplicitLinear, @karg2020EfficientRepresentation, @montufar2014
 
 ## Experiment data
 
-[Scalar LQR plotting tool on Desmos](https://www.desmos.com/calculator/uirf3bbuu8)
-
-Experiments on wandb:
-
-- [SAC (Acrobot)](https://wandb.ai/nplawrence/acrobot-upperbound?nw=nwusernplawrence)
-- [DQN (Cartpole & Acrobot)](https://wandb.ai/nplawrence/acrobot-cartpole-dqn-upperbound/overview)
+- [Scalar LQR plotting tool on Desmos](https://www.desmos.com/calculator/uirf3bbuu8)
+- Experiments on wandb:
+  - [SAC (Acrobot)](https://wandb.ai/nplawrence/acrobot-upperbound)
+  - [DQN (Cartpole & Acrobot)](https://wandb.ai/nplawrence/acrobot-cartpole-dqn-upperbound)
+  - [RL+MPC](https://wandb.ai/nplawrence/RL-MPC)
 
 
 ## References
 
 ::: {#refs}
 :::
+
+# Appendix
+
+
+## Scalar LQR general formulas {#gen_scalarLQR}
+
+Trajectories are easy to compute:
+
+::: {layout="[[1,0.2,1]]"}
+\begin{align}
+x_{t+1} &= a x_t + b u_t\\
+u_t &= -k x_t
+\end{align}
+
+$$\implies$$
+
+\begin{align}
+x_{t+1} &= \left( a - bk \right)x_t \\
+&\vdots\\
+x_{t+1} &= \left( a - bk \right)^{t+1} x_0 \\
+u_t &= -k \left( a - bk \right)^t x_0
+\end{align}
+:::
+
+## Returns are easy to compute
+
+
+
+\begin{align}
+\sum_{t=0}^{\infty} \gamma^t \left( x_t^2 + \rho u_t^2 \right) &= x_0^2 + \gamma (a-bk)^2 x_0^2 + \gamma^2 (a-bk)^4 x_0^2 + \ldots\\
+&+ \rho k^2 x_0^2 + \gamma \rho k^2 (a-bk)^2 x_0^2 + \ldots \\
+&= \sum_{t=0}^{\infty} \gamma^t (a-bk)^{2t} (1 + \rho k^2) x_0^2
+\end{align}
+
+::: aside
+\begin{align}
+x_{t+1} &= \left( a - bk \right)^{t+1} x_0\\
+u_t &= -k \left( a - bk \right)^t x_0
+\end{align}
+:::
+
+## Quadratic value function
+
+By properties of geometric series:
+
+\begin{align}
+\text{return} &= \sum_{t=0}^{\infty} \gamma^t (a-bk)^{2t} (1 + \rho k^2) x_0^2 \\
+&= \frac{1 + \rho k^2}{1 - \gamma\left(a - bk\right)^2} x_0^2
+\end{align}
+
+::: aside
+$\sum_{i = 0}^{\infty} \alpha \beta^i = \alpha \frac{1}{1 - \beta}$
+:::
+
+## A 1-D optimization problem {auto-animate="true"}
+
+::: {style="margin-top: 200px; margin-left: 100px;"}
+$$\min_{K} \frac{1 + \rho K^2}{1 - \gamma\left(a - bK\right)^2}$$
+:::
+
+
