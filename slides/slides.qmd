@@ -2164,10 +2164,47 @@ Relabeling
 ![](figs/Automation+Paradox.jpg){fig-align="center"}
 
 
+
+
+
+
 ## 
 
-![@bertsekas2022lessons](figs/alphazerobertsekas.jpg)
+::: {layout="[[1,1],[1,1]]"}
+1996
 
+2022
+
+![Classic, rigorous](figs/neurobertsekas.jpeg){height=375}
+
+![Contemporary, intuitive](figs/alphazerobertsekas.jpg){height=375}
+:::
+
+::: aside
+See @bertsekas1996neuro, @bertsekas2022lessons
+:::
+
+##
+
+![](figs/lee_vfmpc.png){fig-align="center"}
+
+::: aside
+See @lee2001NeurodynamicProgramming, @yoo2022strategies
+:::
+
+##
+
+::: {layout="[[1],[1,1]]"}
+![](figs/arroyo_mpc.png){height=175 fig-align="center"}
+
+![](figs/arroyo_concept.png){height=200 fig-align="center"}
+
+![](figs/bopest.png){height=200 fig-align="center"}
+:::
+
+::: aside
+See @arroyo2022ReinforcedModel and [BOPEST](https://ibpsa.github.io/project1-boptest/)
+:::
 
 # Addendum
 
