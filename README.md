@@ -1,8 +1,10 @@
 # RL-MPC-tutorial
 
+[HTML here](./slides/slides.html)
+
 [PDF here](./slides/slides.pdf)
 
-[HTML here](./slides/slides.html) --- download and open in your browser. (Larger file, but displays properly.)
+[Cheat sheet here](./slides/cheat_sheet.html)
 
 ---
  
