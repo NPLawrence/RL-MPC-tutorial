@@ -77,16 +77,18 @@ Combine reinforcement learning (RL) & model predictive control (MPC)!
 
 :::: {.columns}
 ::: {.column width="80%"}
+::: {.incremental}
 - RL, MPC, and some stuff in-between pertaining to process control
 - How to implement these ideas
 - Emphasis on intuition rather than rigor
-- Ask questions and be ready to discuss things with your neighbor
+- Ask questions, discuss with your neighbor  
+I hope this works for you!
+:::
 :::
 ::: {.column width="20%"}
-![Cheat sheet!](figs/qr-cheatsheet.png)
+![Cheat sheet! ([nplawrence.com](https://nplawrence.com))](figs/qr-cheatsheet.png)
 :::
 ::::
-I hope this works for you!
 
 
 # Reinforcement learning
@@ -94,7 +96,7 @@ I hope this works for you!
 ## Agents and environments {.center}
 
 
-## Environment
+## {.center}
 
 ::: {layout="[[0.6,1,1]]" layout-valign="center"}
 Apply torque
@@ -125,7 +127,7 @@ Actions and states lead to new states $$s_{t+1} \sim p \left( s_{t+1} \middle| s
 
 
 
-## Environment
+## 
 
 Continuing forever gives a trajectory $$s_0, a_0, s_1, a_1, \ldots, s_{t}, a_{t}, s_{t+1}, \ldots$$
 
@@ -148,7 +150,7 @@ The agent is the learner:
 Figure: @weng2018bandit
 :::
 
-## Agent
+## 
 
 **Reward** guides learning:
 
@@ -201,21 +203,24 @@ See @lawrence2022DeepReinforcement
 
 ## We want the "best" policy!
 
-
-
--   Take $a \in \text{argmax}_{a} \left\{ r(s,a) \right\}$?
-
-::: r-stack
-$\rightarrow$ too shortsighted
+::: {.fragment}
+-  Take $a \in \text{argmax}_{a} \left\{ r(s,a) \right\}$?
 :::
-
+::: {.fragment}
+  $$\rightarrow \text{too shortsighted}$$ 
+:::
+::: {.fragment}
 -   Maximize $r_0 + r_1 + r_2 + \ldots$?
-
-::: r-stack
-$\rightarrow$ might diverge
+:::
+::: {.fragment}
+$$\rightarrow \text{might diverge}$$
 :::
 
-Consider the discounted **return** $$G_t = r_t + \gamma r_{t+1} + \gamma^2 r_{t+2} + \ldots$$ where $\gamma \in [0,1]$
+
+## Discounted **return** 
+
+- [x] Consider $$G_t = r_t + \gamma r_{t+1} + \gamma^2 r_{t+2} + \ldots$$ where $\gamma \in [0,1]$
+
 
 ## 
 
@@ -233,7 +238,7 @@ Return is bounded across all possible trajectories $$\lvert G_t \rvert \leq \fra
 
 ## The reinforcement learning problem {auto-animate="true"}
 
-::: {style="margin-top: 150;"}
+::: {style="margin-top: 200px;"}
 $$ \text{maximize} \quad J(\pi) = \mathbb{E}_{\pi}\left[ \sum_{t=0}^{\infty} \gamma^{t}r(s_t,a_t) \right]$$
 :::
 
@@ -252,9 +257,10 @@ Why is this hard/impossible?
 
 ## Wishful thinking {.center}
 
-## 
+## What if we had an optimal trajectory?
 
-What if we had an optimal trajectory? $$s_0^\star, a_0^\star, r_0^\star, s_1^\star, a_1^\star, r_1^\star \ldots, s_{t}^\star, a_{t}^\star, r_{t}^\star, s_{t+1}^\star, \ldots$$
+That is,
+ $$s_0^\star, a_0^\star, r_0^\star, s_1^\star, a_1^\star, r_1^\star \ldots, s_{t}^\star, a_{t}^\star, r_{t}^\star, s_{t+1}^\star, \ldots$$
 
 ::: {layout="[[1,0.5]]"}
 Then the trajectory starting at $s_t^\star$ should still be optimal $$s_{t}^\star, a_{t}^\star, r_{t}^\star, s_{t+1}^\star, \ldots$$
@@ -266,18 +272,23 @@ Then the trajectory starting at $s_t^\star$ should still be optimal $$s_{t}^\sta
 [Optimal substructure (Wikipedia)](https://en.wikipedia.org/wiki/Optimal_substructure)
 :::
 
-## Chess example
+## Self-consistency is key
 
-(placeholder -- think about planning backwards from checkmate)
+![](figs/ubc_edmonton.png){fig-align="center"}
 
-## 
 
+## Value functions
+
+::: {.fragment}
 -   Define the **state-action value** to be $$Q^\pi (s,a) = \mathbb{E}_{\pi}\left[ \sum_{t=0}^{\infty} \gamma^{t}r(s_t,a_t) | s_0 = s, a_0 = a \right]$$
+:::
+::: {.fragment}
 -   Similarly, the (state) **value** averages over the policy: 
 \begin{align}
 V^\pi (s) &= \mathbb{E}_{\pi}\left[ \sum_{t=0}^{\infty} \gamma^{t}r(s_t,a_t) | s_0 = s \right]\\
 &= \mathbb{E}_{a \sim \pi(a | s)}\left[ Q^\pi (s,a) \right]
 \end{align}
+:::
 
 ## Abstracting the objective through value functions 
 
@@ -287,14 +298,17 @@ $$J(\pi) = \mathbb{E}_{s_0 \sim p(s_0)}\left[ V^\pi (s_0) \right]$$
 
 ## What's the big deal with these magical functions?
 
+::: {.fragment}
 Observe 
 \begin{align}
 G_t &= r_t + \gamma r_{t+1} + \gamma^2 r_{t+2} + \ldots \\
 &= r_t + \gamma \left( r_{t+1} + \gamma r_{t+2} + \ldots \right) \\
 &= r_t + \gamma G_{t+1}
 \end{align}
-
+:::
+::: {.fragment}
 Compresses an infinite number of actions into a simple scalar recursion!
+:::
 
 ## What's the big deal with these magical functions?
 
@@ -347,32 +361,41 @@ $$V^\star (s) = \max_{\pi} V^\pi (s)$$
 $$Q^\star (s,a) = \max_{\pi} Q^\pi (s,a)$$
 :::
 
+::: {.fragment}
 We don't actually have $\pi^\star$, but it's fun to imagine...
+:::
+
 
 ## Bellman optimality equation
 
 Given $V^\star$...
 
+
+::: {.fragment}
 \begin{align}
 V^\star (s) &= \mathbb{E}_{a \sim \pi^\star (a | s)} \left[ r(s,a) + \gamma \mathbb{E}_{s' \sim p(s' | s, a)} \left[ V^\star (s') \right]\right]\\
 &= \max_{a}\left\{ r(s,a) + \gamma \mathbb{E}_{s' \sim p(s' | s, a)} \left[ V^\star (s') \right] \right\}
 \end{align}
+:::
 
+::: {.fragment}
 ![](figs/v_backup.png){height=150 fig-align="center"}
+:::
 
-
-::: {.r-fit-text}
+::: {.fragment .r-fit-text}
 One-step planning is long-term optimal
 :::
 
 ## Bellman optimality equation
 
 Given $Q^\star$...
+
+::: {.fragment}
 $$V^\star (s) = \max_{a} Q^\star (s,a)$$
-
 ...Even easier!
+:::
 
-::: {.r-fit-text}
+::: {.fragment .r-fit-text}
 Learn $Q^\star$ and then maximize it!
 :::
 
@@ -398,30 +421,36 @@ Iterating $q^{k+1} = B(q^k)$ **may** converge to some $q$ where $q = B(q)$
 
 ##  {.center}
 
--   Let's just take the operator $$B(Q^\pi) = r(s,a) + \gamma  \mathbb{E}_{s' \sim p(s' | s, a)}\left[ \max_{a'} Q^\pi (s',a') \right]$$ and apply fixed-point iteration!
 
+-   Let's just---"just"?---take the operator $$B(Q^\pi) = r(s,a) + \gamma  \mathbb{E}_{s' \sim p(s' | s, a)}\left[ \max_{a'} Q^\pi (s',a') \right]$$ and apply fixed-point iteration!
+
+::: {.fragment}
 -   The RHS is an **idealized** update scheme and key source of inspiration
+:::
+
 
 ## Fixed-point aspirations
 
-If we have a policy $\pi$ and some oracle that tells us $Q^\pi$, take 
+::: {.fragment}
+If we have a policy $\pi$ and some oracle that tells us $Q^\pi$...
+:::
+::: {.fragment}
+Then take
 \begin{align}
 \pi^{+}(s) &= \text{arg}\max\limits_{a} Q^\pi (s,a) \\
 &= \text{arg}\max\limits_{a} \left\{ r(s,a) + \gamma \mathbb{E}_{s' \sim p(s' | s, a)} \left[ V^\pi  (s') \right] \right\}
 \end{align}
+:::
 
-Then $\pi^{+}$ is at least as good as $\pi$! That is, $Q^{+} = B(Q^\pi) \geq Q^\pi$.
-
-When improvement is no longer possible, we have 
+::: {.incremental}
+- Then $\pi^{+}$ is at least as good as $\pi$!
+- When improvement is no longer possible, we have 
 $$
 \pi^\star (s) = \arg \max_{a} Q^\star (s,a).
 $$
+:::
 
 
-## {.center}
-
-There are many ways to proceed: Policy iteration, value iteration, and we haven't even mentioned policy evaluation. 
-We're focusing on high-level ideas and avoiding introducing jargon, so see @sutton2018ReinforcementLearning for a full treatment.
 
 
 ##  {visibility="hidden"}
@@ -435,6 +464,28 @@ $$\pi^{+}(s) = \bbox[#DCD0FF,2pt]{\text{arg}\max\limits_{a}} \left\{ r(s,a) + \g
 ::: aside
 See works by [Dimitri Bertsekas](https://www.mit.edu/~dimitrib/home.html) (most recently @bertsekas2023course)
 :::
+
+## 
+
+There is a lot of jargon to get into:
+
+:::: {.columns}
+::: {.column}
+- Policy evaluation
+- Policy iteration
+- Value iteration
+:::
+::: {.column}
+- Temporal-difference learning, Monte Carlo...
+- On-policy, off-policy...
+- SARSA, Q-Learning, policy gradients, etc...
+:::
+::::
+- "REINFORCE": *RE*ward *I*ncrement = *N*onnegative *F*actor $\times$ *O*ffset *R*einforcement $\times$ *C*haracteristic *E*ligibility (@williams1992SimpleStatistical)
+
+**We're focusing on high-level ideas and need to get to MPC**
+
+
 
 ##  {.center}
 
@@ -559,18 +610,22 @@ Standing upright would be better than all of these...
 
 ## Finer control requires continuous actions
 
+
+::: {.fragment}
 What we want: 
 $$
 \pi^\star (s) = \arg \max_{a} Q^\star (s,a)
 $$
+:::
 
+::: {.fragment}
 What DQN delivers:
-
 
 \begin{align}
 \pi(s) &= \arg \max \left\{ q_1, \ldots, q_d \right\} \\
 &\approx \arg \max \left\{ Q^\star(s, a_1), \ldots, Q^\star(s, a_d)\right\}
 \end{align}
+:::
 
 ## Finer control requires continuous actions
 
@@ -615,21 +670,28 @@ DDPG [@lillicrap2015ContinuousControl], TD3 [@fujimoto2018AddressingFunction], S
 
 ## Acrobot cont'd {.center}
 
+::: {.fragment}
 Let's assume we have some RL oracle: 
+:::
 
+::: {.fragment}
 *Given an environment and sufficiently powerful networks, it does a reasonable job at solving the principal RL problem*
+:::
 
+::: {.fragment}
 We isolate two components:
 
 -   Reward function
 -   Discount factor $\gamma$
+:::
 
-## Todo: Try to formulate a reward function
+
+## Try to formulate a reward function
 
 ::: {layout="[[1,1]]" layout-valign="center/"}
-![](figs/acrobot.png){height="300"}
+![](figs/acrobot.png){height=300 fig-align="center"}
 
-![](figs/dp.gif){height="300"}
+![](figs/dp.gif){height=300 fig-align="center"}
 :::
 
 ::: aside
@@ -781,8 +843,14 @@ $\ell^\infty$ reward, $\gamma = 0.95$, 5hz
 :::
 ::::
 
-## An analytic solution: What if we know something about the environment? {.center}
+## An analytic solution {.center}
 
+What if we know something about the environment?
+
+
+## Aside: Some notation
+
+(placeholder -- some discussion about RL and control notation should go somewhere...)
 
 
 
@@ -802,9 +870,7 @@ $$\text{maximize }\quad \mathbb{E}_{\pi} \left[ \sum_{t=0}^{\infty} \gamma^t r(s
 :::
 ::::
 
-## Aside: Some notation
 
-(placeholder -- some discussion about RL and control notation should go somewhere...)
 
 ## Let's grossly simplify the problem
 
@@ -859,7 +925,7 @@ u_t &= -k x_t
 $$\implies$$
 
 \begin{align}
-x_{t+1} &= \left( 1.1 - 0.5 k \right)x_t \\
+x_{1} &= 1.1 - 0.5 k \\
 &\vdots\\
 x_{t+1} &= \left( 1.1 - 0.5 k \right)^{t+1} \\
 u_t &= -k \left( 1.1 - 0.5 k \right)^t
@@ -999,10 +1065,20 @@ Finding this fixed point in **parameter space** gives the optimal solution in va
 ## {background-iframe="https://www.desmos.com/calculator/ghaskgjvc0?embed"}
 
 
+##  {visibility="hidden"}
+
+[https://www.desmos.com/calculator/ghaskgjvc0](https://www.desmos.com/calculator/ghaskgjvc0)
+
+
 ## Recap lessons from RL section
 
-(placeholder + 5 min break slide)
-
+::: {.incremental}
+- Interplay between reward design and "shortsighted" vs. "farsighted" objectives
+- Fixed points:
+  - Principled theoretical target
+  - Practical approximations in value/policy space
+  - Tractable in simple scalar case (+ visualizations)
+:::
 
 # Process control
 
@@ -1076,11 +1152,14 @@ Consider the policy $$u(t) = k_p e(t) + k_i \int_{0}^{t} e(\tau) d \tau$$
 
 ## The magic of integral action
 
+::: {.incremental}
 1.  Assume that $k_p, k_i$ are chosen such that the system is stable
 2.  Then $u(t) \to \bar{u}$, $e(t) \to \bar{e}$
 3.  We can write $$ \bar{u} = k_p \bar{e} + k_i \lim_{t \to \infty} \int_{0}^{t} e(\tau) d \tau$$
 4.  The integral term must converge
 5.  Zero offset!
+:::
+
 
 ## Proportional-Integral-Derivative control
 
@@ -1206,16 +1285,20 @@ Example is in the Julia package [ControlSystems.jl](https://juliacontrol.github.
 
 ## Aside about discounting
 
+::: {.fragment}
 Standard LQR solvers: $(A, B, M, R) \to K$
-
+:::
+::: {.fragment}
 Discounted LQR: Use $$\left( \sqrt{\gamma} A, B, M, \frac{1}{\gamma} R \right)$$
+:::
 
+::: {.fragment}
 As $\gamma \to 0$...
 
 -   "Ignore the state transition matrix"
 -   "Apply infinite weight to control actions"
 -  ...Unstable controller
-
+:::
 
 ## 
 
@@ -2157,7 +2240,7 @@ Relabeling
 
 ## Studies in the literature
 
-
+(Non-exhaustive)
 
 ##
 
@@ -2205,6 +2288,71 @@ See @lee2001NeurodynamicProgramming, @yoo2022strategies
 ::: aside
 See @arroyo2022ReinforcedModel and [BOPEST](https://ibpsa.github.io/project1-boptest/)
 :::
+
+
+
+## This is a popular idea
+
+::: {layout="[[1,1],[1], [1,1]]" layout-valign="center"}
+
+
+![[-@zhong2013ValueFunction]](figs/5_rlmpc_paper.png){height=100}
+
+![[-@lowrey2019PlanOnline]](figs/4_rlmpc_paper.png){height=100}
+
+![Last week [-@abdufattokhov2024LearningLyapunov]](figs/1_rlmpc_paper.png){height=110}
+
+![[-@farshidian2019DeepValue]](figs/2_rlmpc_paper.png){height=100}
+
+![[-@karnchanachari2020practical]](figs/3_rlmpc_paper.png){height=100}
+
+
+
+
+
+:::
+
+
+
+
+
+
+
+
+# Thank you
+
+## 
+
+- Martha White & Upper Bound organizers
+- Philip Loewen
+- Bhushan Gopaluni
+- Michael Forbes
+- Shuyuan Wang
+- Thiago da Cunha Vasco
+- DAIS Lab
+- NSERC
+
+
+## Slides and code
+
+![Link: [https://github.com/NPLawrence/RL-MPC-tutorial](https://github.com/NPLawrence/RL-MPC-tutorial)](figs/qr-github.png){height=400 fig-align="center"}
+
+
+## Experiment data
+
+- [Scalar LQR plotting tool on Desmos](https://www.desmos.com/calculator/uirf3bbuu8)
+- Experiments on wandb:
+  - [SAC (Acrobot)](https://wandb.ai/nplawrence/acrobot-upperbound)
+  - [DQN (Cartpole & Acrobot)](https://wandb.ai/nplawrence/acrobot-cartpole-dqn-upperbound)
+  - [RL+MPC](https://wandb.ai/nplawrence/RL-MPC)
+
+
+## References
+
+::: {#refs}
+:::
+
+
 
 # Addendum
 
@@ -2393,43 +2541,6 @@ See @bemporad2002ExplicitLinear, @karg2020EfficientRepresentation, @montufar2014
 (placeholder --- thinking of Michael's paper, also Siang/Sham's)
 
 
-
-
-
-
-
-# Thank you
-
-## 
-
-- Martha White & Upper Bound organizers
-- Philip Loewen
-- Bhushan Gopaluni
-- Michael Forbes
-- Shuyuan Wang
-- Thiago da Cunha Vasco
-- DAIS Lab
-- NSERC
-
-
-## Slides and code
-
-![Link: [https://github.com/NPLawrence/RL-MPC-tutorial](https://github.com/NPLawrence/RL-MPC-tutorial)](figs/qr-github.png){height=400 fig-align="center"}
-
-
-## Experiment data
-
-- [Scalar LQR plotting tool on Desmos](https://www.desmos.com/calculator/uirf3bbuu8)
-- Experiments on wandb:
-  - [SAC (Acrobot)](https://wandb.ai/nplawrence/acrobot-upperbound)
-  - [DQN (Cartpole & Acrobot)](https://wandb.ai/nplawrence/acrobot-cartpole-dqn-upperbound)
-  - [RL+MPC](https://wandb.ai/nplawrence/RL-MPC)
-
-
-## References
-
-::: {#refs}
-:::
 
 # Appendix
 
