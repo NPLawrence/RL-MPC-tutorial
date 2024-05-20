@@ -771,13 +771,13 @@ $\gamma = 0.90$
 
 </div>
 
-![](videos/gamma_90/acrobot-sac__default__1__episode-1950.mp4)
+![](videos/gamma_90/acrobot-sac__default__1__episode-1950.gif)
 
-![](videos/gamma_90/acrobot-sac__l2__1__episode-1950.mp4)
+![](videos/gamma_90/acrobot-sac__l2__1__episode-1950.gif)
 
-![](videos/gamma_90/acrobot-sac__height__3__episode-1950.mp4)
+![](videos/gamma_90/acrobot-sac__height__3__episode-1950.gif)
 
-![](videos/gamma_90/acrobot-sac__linf__1__episode-1950.mp4)
+![](videos/gamma_90/acrobot-sac__linf__1__episode-1950.gif)
 
 <div>
 
@@ -787,13 +787,13 @@ $\gamma = 0.99$
 
 </div>
 
-![](videos/gamma_99/acrobot-sac__default__0__episode-1950.mp4)
+![](videos/gamma_99/acrobot-sac__default__0__episode-1950.gif)
 
-![](videos/gamma_99/acrobot-sac__l2__2__episode-1950.mp4)
+![](videos/gamma_99/acrobot-sac__l2__2__episode-1950.gif)
 
-![](videos/gamma_99/acrobot-sac__height__1__episode-1950.mp4)
+![](videos/gamma_99/acrobot-sac__height__1__episode-1950.gif)
 
-![](videos/gamma_99/acrobot-sac__linf__2__episode-1950.mp4)
+![](videos/gamma_99/acrobot-sac__linf__2__episode-1950.gif)
 :::
 
 ::: aside
