@@ -14,6 +14,10 @@ format:
     embed-resources: true
 ---
 
+This is a cheat sheet for the RL-MPC tutorial.
+
+Keep this handy and also feel free to chime in during the tutorial for clarification :-)
+
 
 ## Reinforcement learning
 
@@ -78,6 +82,20 @@ Discounted return
 
 $G_t = \sum_{k=0}^\infty \gamma^k r_{t+k}$
 
+
+
+$Q^\pi$
+
+State-action value function
+
+$Q^\pi (s,a) = \mathbb{E} \left[ G_0 | s_0 = s, a_0 = a \right]$
+
+$Q^\star$
+
+Optimal value function
+
+The above, but better
+
 $V^\pi$
 
 Value function
@@ -88,19 +106,13 @@ $V^\star$
 
 Optimal value function
 
-The above, but better
+$V^\star (s) = \max_a Q^\star(s,a)$
 
-$Q^\pi$
+$\pi^\star$ 
 
-State-action value function
+Optimal policy
 
-<div></div>
-
-$Q^\star$
-
-Optimal value function
-
-<div></div>
+$\pi^\star (s) = \text{arg}\max_a Q^\star (s,a)$ 
 
 :::
 

@@ -81,8 +81,8 @@ Combine reinforcement learning (RL) & model predictive control (MPC)!
 - RL, MPC, and some stuff in-between pertaining to process control
 - How to implement these ideas
 - Emphasis on intuition rather than rigor
-- Ask questions, discuss with your neighbor  
-I hope this works for you!
+- Ask questions, discuss with your neighbor :-)
+
 :::
 :::
 ::: {.column width="20%"}
@@ -169,13 +169,50 @@ Figure: @sutton2018ReinforcementLearning
 
 The agent-environment interface yields the trajectory $$s_0, a_0, r_0, s_1, a_1, r_1 \ldots, s_{t}, a_{t}, r_{t}, s_{t+1}, \ldots$$
 
-States governed by $$s_{t+1} \sim p \left( s_{t+1} \middle| s_t, a_t \right)$$ Agent chooses actions from a **policy** $$a_t \sim \pi\left( a_t \middle| s_t \right)$$ Rewards assigned by a function $$r_t = r(s_t, a_t)$$
+States governed by $$s_{t+1} \sim p \left( s_{t+1} \middle| s_t, a_t \right)$$ 
+
+Agent chooses actions from a **policy** $$a_t \sim \pi\left( a_t \middle| s_t \right)$$ 
+
+Rewards assigned by a function $$r_t = r(s_t, a_t)$$
+
 
 ## The space of policies is vast
 
+
+::: {.fragment fragment-index=1}
+-   Completely random
+:::
+::: {.fragment fragment-index=2}
+-   Industrial control module
+:::
+::: {.fragment fragment-index=3}
+-   Neural network
+:::
+
+::: r-stack
+::: {.fragment fragment-index=1}
+![](figs/gritty.gif){ height=190 fig-align="center"}
+:::
+
+::: {.fragment fragment-index=2}
+![](figs/Honey_UDC.jpg){ height=210 fig-align="center"}
+:::
+
+::: {.fragment fragment-index=3}
+![](figs/nn.png){height=230 fig-align="center"}
+:::
+:::
+
+
+
+## The space of policies is vast {visibility="hidden"}
+
+
+::: {.incremental}
 -   Completely random
 -   An industrial control module
 -   Neural network
+:::
 
 ::: r-stack
 ![](figs/gritty.gif){.fragment height=190 fig-align="center"}
@@ -219,7 +256,8 @@ $$\rightarrow \text{might diverge}$$
 
 ## Discounted **return** 
 
-- [x] Consider $$G_t = r_t + \gamma r_{t+1} + \gamma^2 r_{t+2} + \ldots$$ where $\gamma \in [0,1]$
+<p><span class="emoji">&#9989;</span>   Consider</p>
+$$G_t = r_t + \gamma r_{t+1} + \gamma^2 r_{t+2} + \ldots$$ where $\gamma \in [0,1]$
 
 
 ## 
@@ -279,16 +317,20 @@ Then the trajectory starting at $s_t^\star$ should still be optimal $$s_{t}^\sta
 
 ## Value functions
 
-::: {.fragment}
--   Define the **state-action value** to be $$Q^\pi (s,a) = \mathbb{E}_{\pi}\left[ \sum_{t=0}^{\infty} \gamma^{t}r(s_t,a_t) | s_0 = s, a_0 = a \right]$$
-:::
-::: {.fragment}
+For a given policy $\pi$...
+
+Define the **state-action value** [^1] to be $$Q^\pi (s,a) = \mathbb{E}_{\pi}\left[ \sum_{t=0}^{\infty} \gamma^{t}r(s_t,a_t) | s_0 = s, a_0 = a \right]$$
+
+[^1]: Or "$Q$-function"
+
+
+## 
+
 -   Similarly, the (state) **value** averages over the policy: 
 \begin{align}
 V^\pi (s) &= \mathbb{E}_{\pi}\left[ \sum_{t=0}^{\infty} \gamma^{t}r(s_t,a_t) | s_0 = s \right]\\
 &= \mathbb{E}_{a \sim \pi(a | s)}\left[ Q^\pi (s,a) \right]
 \end{align}
-:::
 
 ## Abstracting the objective through value functions 
 
@@ -351,19 +393,17 @@ These are the **Bellman equations** for $V$ and $Q$
 Bellman equation holds for any policy!
 :::
 
-## Bellman optimality equation
+## Optimal policy
 
-An optimal policy $\pi^\star$ solves the following:
 
-::: {layout="[[1,1]]"}
-$$V^\star (s) = \max_{\pi} V^\pi (s)$$
-
-$$Q^\star (s,a) = \max_{\pi} Q^\pi (s,a)$$
+::: {.incremental}
+- $\pi^\star$ -- optimal policy
+- We don't actually have $\pi^\star$, but it's fun to imagine...
+- $\pi^\star$ solves the following: $$V^\star (s) = \max_{\pi} V^\pi (s) \qquad Q^\star (s,a) = \max_{\pi} Q^\pi (s,a)$$
 :::
 
-::: {.fragment}
-We don't actually have $\pi^\star$, but it's fun to imagine...
-:::
+
+
 
 
 ## Bellman optimality equation
@@ -419,12 +459,13 @@ Iterating $q^{k+1} = B(q^k)$ **may** converge to some $q$ where $q = B(q)$
 
 ![](figs/fixedpoint.png){height=350 fig-align="center"}
 
-##  {.center}
+##  Fixed-point iteration in value space {.center}
 
 
--   Let's just---"just"?---take the operator $$B(Q^\pi) = r(s,a) + \gamma  \mathbb{E}_{s' \sim p(s' | s, a)}\left[ \max_{a'} Q^\pi (s',a') \right]$$ and apply fixed-point iteration!
+-   Let's just take the operator $$B(Q^\pi) = r(s,a) + \gamma  \mathbb{E}_{s' \sim p(s' | s, a)}\left[ \max_{a'} Q^\pi (s',a') \right]$$ and apply fixed-point iteration!
 
-::: {.fragment}
+::: {.incremental}
+- ..."Just"?
 -   The RHS is an **idealized** update scheme and key source of inspiration
 :::
 
@@ -459,7 +500,11 @@ $$\pi^{+}(s) = \bbox[#DCD0FF,2pt]{\text{arg}\max\limits_{a}} \left\{ r(s,a) + \g
 
 ## Three important approximations
 
+
+::: {style="margin-top: 100px;"}
 ![](figs/pi_update.png){fig-align="center"}
+:::
+
 
 ::: aside
 See works by [Dimitri Bertsekas](https://www.mit.edu/~dimitrib/home.html) (most recently @bertsekas2023course)
@@ -478,9 +523,9 @@ There is a lot of jargon to get into:
 ::: {.column}
 - Temporal-difference learning, Monte Carlo...
 - On-policy, off-policy...
-- SARSA, Q-Learning, policy gradients, etc...
 :::
 ::::
+- SARSA, Q-Learning, policy gradients, etc...
 - "REINFORCE": *RE*ward *I*ncrement = *N*onnegative *F*actor $\times$ *O*ffset *R*einforcement $\times$ *C*haracteristic *E*ligibility (@williams1992SimpleStatistical)
 
 **We're focusing on high-level ideas and need to get to MPC**
@@ -490,7 +535,7 @@ There is a lot of jargon to get into:
 ##  {.center}
 
 ::: {layout="[[1],[1]]"}
-To move things along we will work through some examples instead of focusing on the minutiae of common RL algorithms
+To move things along we will work through some examples instead of focusing on the minutiae of popular RL algorithms
 
 ![](figs/rl_algs.png){height=400 fig-align="center"}
 :::
@@ -698,20 +743,16 @@ We isolate two components:
 [Double pendulum \[Wikipedia\]](https://en.wikipedia.org/wiki/Double_pendulum)
 :::
 
-## Reward functions
-
--   Default: $0$ if above line; $-1$ otherwise
--   $\ell^2$: Negative $2$-norm of
-    -   normalized velocities
-    -   $-1 - \cos( \theta_1 )$, $1 - \cos( \theta_2 )$
--   Height
--   $\ell^\infty$: Negative $\infty$-norm of
-    -   Normalized velocities
-    -   Normalized height
 
 ## Default reward
 
+- $0$ if above line 
+- $-1$ otherwise
+
+. . .
+
 ![](figs/reward_default.png){height=300 fig-align="center"}
+
 
 ::: aside
 "gamma" = $\gamma$ (discount factor)
@@ -719,7 +760,15 @@ We isolate two components:
 
 ## $\ell^2$ reward
 
+
+- Negative 2-norm of: 
+  - normalized velocities
+  - $-1 - \cos( \theta_1 )$, $1 - \cos( \theta_2 )$
+
+. . .
+
 ![](figs/reward_l2.png){height=300 fig-align="center"}
+
 
 ::: aside
 "gamma" = $\gamma$ (discount factor)
@@ -727,6 +776,10 @@ We isolate two components:
 
 
 ## "Height" reward
+
+- Height of the outer link's endpoint
+
+. . .
 
 ![](figs/reward_height.png){height=300 fig-align="center"}
 
@@ -736,6 +789,12 @@ We isolate two components:
 
 
 ## $\ell^\infty$ reward
+
+- Negative $\infty$-norm of:
+  - Deviation from maximum height
+  - Normalized velocities
+
+. . .
 
 ![](figs/reward_linf.png){height=300 fig-align="center"}
 
@@ -850,8 +909,20 @@ What if we know something about the environment?
 
 ## Aside: Some notation
 
-(placeholder -- some discussion about RL and control notation should go somewhere...)
+:::: {.columns}
+::: {.column width=60%}
+- RL maximizes reward
+- Control minimized cost
+- RL uses states and actions $s_t, a_t$
+- Control ... $x_t, u_t$
+:::
 
+::: {.column width=40%}
+![Cheat sheet! ([nplawrence.com](https://nplawrence.com))](figs/qr-cheatsheet.png)
+:::
+::::
+
+Just know we are talking about the same objects in spirit up to a simple sign flip
 
 
 ## The original problem
@@ -1064,6 +1135,11 @@ Finding this fixed point in **parameter space** gives the optimal solution in va
 
 ## {background-iframe="https://www.desmos.com/calculator/ghaskgjvc0?embed"}
 
+##  {visibility="hidden"}
+
+::: {.r-stretch}
+![](figs/desmos-graph.png){fig-align="center"}
+:::
 
 ##  {visibility="hidden"}
 
@@ -1118,7 +1194,7 @@ A common control task is to bring a system to a constant value:
 ![](figs/anim_impulse_y.gif)
 :::
 
-The system settles at zero...how do we get it to settle somewhere else?
+Some system settles at zero...how do we get it to settle somewhere else?
 
 ## Feedback control setup
 
