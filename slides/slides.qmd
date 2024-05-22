@@ -44,13 +44,13 @@ bibliography: tutorial.bib
 Day-to-day life depends on safely regulating a system around a constant value:
 
 :::: {.columns}
-::: {.column width="40%"}
+::: {.column width="50%"}
 1.  Cruise control
 2.  Temperature
 3.  Concentrations
 :::
 
-::: {.column width="60%"}
+::: {.column width="50%"}
 4.  Levels
 5.  Moisture
 6.  Etc...
@@ -190,19 +190,18 @@ Rewards assigned by a function $$r_t = r(s_t, a_t)$$
 :::
 
 ::: r-stack
-::: {.fragment fragment-index=1}
+::: {.fragment .fade-in-then-out fragment-index=1}
 ![](figs/gritty.gif){ height=190 fig-align="center"}
 :::
 
-::: {.fragment fragment-index=2}
+::: {.fragment .fade-in-then-out fragment-index=2}
 ![](figs/Honey_UDC.jpg){ height=210 fig-align="center"}
 :::
 
-::: {.fragment fragment-index=3}
+::: {.fragment .fade-in-then-out fragment-index=3}
 ![](figs/nn.png){height=230 fig-align="center"}
 :::
 :::
-
 
 
 ## The space of policies is vast {visibility="hidden"}
@@ -244,28 +243,45 @@ See @lawrence2022DeepReinforcement
 -  Take $a \in \text{argmax}_{a} \left\{ r(s,a) \right\}$?
 :::
 ::: {.fragment}
-  $$\rightarrow \text{too shortsighted}$$ 
+:::{.r-stack}
+$\rightarrow$ too shortsighted
+:::
 :::
 ::: {.fragment}
 -   Maximize $r_0 + r_1 + r_2 + \ldots$?
 :::
 ::: {.fragment}
-$$\rightarrow \text{might diverge}$$
+:::{.r-stack}
+$\rightarrow$ not enough urgency
 :::
+:::
+
+. . .
+
+:::{.r-stack}
+(Also, might diverge, which is bad.)
+:::
+
+
+
 
 
 ## Discounted **return** 
 
-<p><span class="emoji">&#9989;</span>   Consider</p>
-$$G_t = r_t + \gamma r_{t+1} + \gamma^2 r_{t+2} + \ldots$$ where $\gamma \in [0,1]$
+<p><span class="emoji">&#9989;</span>   Pick $\gamma \in [0,1]$ and consider</p>
+$$G_t = r_t + \gamma r_{t+1} + \gamma^2 r_{t+2} + \ldots$$
 
+::: {.incremental}
+- A loonie now?
+- Or $\gamma^t$ cents later?
+:::
 
-## 
+## Discounted returns converge
 
 -   Typically, $\gamma \in (0,1)$
--   Assume $r$ is bounded by $\bar{r}$
+-   Assume all rewards fit inside $\left[ -\bar{r}, \bar{r} \right]$
 
-Return is bounded across all possible trajectories $$\lvert G_t \rvert \leq \frac{\bar{r}}{1 - \gamma}$$
+Return is Upper Bounded across all possible trajectories $$\lvert G_t \rvert \leq \frac{\bar{r}}{1 - \gamma}$$
 
 ![](figs/geometric.png){height="200" fig-align="center"}
 
@@ -287,10 +303,10 @@ $$ \text{maximize} \quad J(\pi) = \mathbb{E}_{\pi}\left[ \sum_{t=0}^{\infty} \ga
 Why is this hard/impossible?
 
 ::: incremental
--   Infinite horizon
--   Search space
--   Randomness
 -   No system description
+-   Search space
+-   Infinite horizon
+-   Randomness
 :::
 
 ## Wishful thinking {.center}
@@ -319,18 +335,19 @@ Then the trajectory starting at $s_t^\star$ should still be optimal $$s_{t}^\sta
 
 For a given policy $\pi$...
 
-Define the **state-action value** [^1] to be $$Q^\pi (s,a) = \mathbb{E}_{\pi}\left[ \sum_{t=0}^{\infty} \gamma^{t}r(s_t,a_t) | s_0 = s, a_0 = a \right]$$
+Define the **state-action value** [^1] to be $$Q^\pi (s,a) = \mathbb{E}_{\pi}\left[ \sum_{t=0}^{\infty} \gamma^{t}r(s_t,a_t) \middle| s_0 = s, a_0 = a \right]$$
 
 [^1]: Or "$Q$-function"
 
 
 ## 
 
--   Similarly, the (state) **value** averages over the policy: 
+Similarly, the (state) **value** averages over the policy: 
 \begin{align}
-V^\pi (s) &= \mathbb{E}_{\pi}\left[ \sum_{t=0}^{\infty} \gamma^{t}r(s_t,a_t) | s_0 = s \right]\\
+V^\pi (s) &= \mathbb{E}_{\pi}\left[ \sum_{t=0}^{\infty} \gamma^{t}r(s_t,a_t) \middle| s_0 = s \right]\\
 &= \mathbb{E}_{a \sim \pi(a | s)}\left[ Q^\pi (s,a) \right]
 \end{align}
+
 
 ## Abstracting the objective through value functions 
 
@@ -341,7 +358,7 @@ $$J(\pi) = \mathbb{E}_{s_0 \sim p(s_0)}\left[ V^\pi (s_0) \right]$$
 ## What's the big deal with these magical functions?
 
 ::: {.fragment}
-Observe 
+Observe: for any specific policy $\pi$
 \begin{align}
 G_t &= r_t + \gamma r_{t+1} + \gamma^2 r_{t+2} + \ldots \\
 &= r_t + \gamma \left( r_{t+1} + \gamma r_{t+2} + \ldots \right) \\
@@ -435,6 +452,11 @@ $$V^\star (s) = \max_{a} Q^\star (s,a)$$
 ...Even easier!
 :::
 
+. . .
+
+Therefore, $$\pi^\star (s) = \text{arg}\max_{a} Q^\star (s,a)$$
+
+
 ::: {.fragment .r-fit-text}
 Learn $Q^\star$ and then maximize it!
 :::
@@ -484,7 +506,7 @@ Then take
 :::
 
 ::: {.incremental}
-- Then $\pi^{+}$ is at least as good as $\pi$!
+- Then $\pi^{+}$ is at least as rewarding as $\pi$!
 - When improvement is no longer possible, we have 
 $$
 \pi^\star (s) = \arg \max_{a} Q^\star (s,a).
@@ -562,7 +584,7 @@ Figure: [Spinning Up](https://spinningup.openai.com/en/latest/spinningup/rl_intr
 ## Deep Q-networks (DQNs)
 
 
-For a **finite** set of actions, define the neural network
+For a **finite** set of actions $\{ a_1, a_2, \ldots, a_d \}$, use a neural network to define
 $$\text{DQN}(s) =
 \begin{bmatrix}
 q_1 \\
@@ -1189,20 +1211,18 @@ A common control task is to bring a system to a constant value:
 ## 
 
 ::: {layout="[[1,1]]"}
-![](figs/anim_impulse_u.gif)
+!["Input"](figs/anim_impulse_u.gif)
 
-![](figs/anim_impulse_y.gif)
+!["Output"](figs/anim_impulse_y.gif)
 :::
 
 Some system settles at zero...how do we get it to settle somewhere else?
 
 ## Feedback control setup
 
-$y_{sp}=$ desired value (sp = "setpoint")
-
-$y =$ measured value
-
-$e = y_{sp} - y$
+- $y_{sp}=$ desired value (sp = "setpoint")
+- $y =$ measured value
+- $e = y_{sp} - y$
 
 **We want $e \to 0$ as $t \to \infty$**
 
@@ -2199,54 +2219,154 @@ Reward: 0 if  $\lVert x \rVert_{\infty} \leq \epsilon$; $-1$ otherwise
 ![](figs/oscillating_masses.png){height=200 fig-align="center"}
 
 
-##
+## "Bad" model
 
-![](figs/reward-badmodel-n10.png)
+- A model such that using it for MPC results in poor/inconsistent rewards
+- Prediction horizon $N=10$
 
-
-##
-
-![](figs/reward-goodmodel-n10.png)
+![](figs/reward-badmodel-n10.png){height=350 fig-align="center"}
 
 
-##
+## "Good" model
 
-![](figs/baseline-n10.png)
+- Well, the MPC policy performs well
+
+![](figs/reward-goodmodel-n10.png){height=350 fig-align="center"}
 
 
-
-##
-
-![](figs/baseline-n1.png)
+## N=10
 
 
 
-## 
+![](figs/baseline-n10.png){fig-align="center"}
 
+
+
+## N=1
+
+
+![](figs/baseline-n1.png){fig-align="center"}
+
+
+
+## RL + MPC, nominal result
+
+$N=1$ plus learned terminal value function
 
 ![](figs/reward_mass.png){fig-align="center"}
 
 
+## Summary so far
 
-##
+**Pros**
 
-(placeholder---hindsight experience replay and learning from sparse rewards)
+<ul style="list-style-type: '+ ';">
+  <li>Augmented MPC improves over time</li>
+  <li>Somewhat overcomes deficiencies of a "bad" model or short prediction horizon</li>
+</ul>
 
 
-## 
+**Cons**
+
+<ul style="list-style-type: '- ';">
+  <li>Learning is slow/delayed</li>
+  <li>Significant variation</li>
+</ul>
+
+
+
+
+## Sparse rewards
+
+We gave the agent a binary reward
+
+. . .
+
+Why is that a challenge for the agent? Pros/cons of such a reward?
+
+. . .
+
+
+
+:::: {.columns}
+::: {.column}
+**Pros**
+
+<ul style="list-style-type: '+ ';">
+  <li>Simple to define</li>
+  <li>Many ways of completing the task</li>
+</ul>
+:::
+
+::: {.column}
+**Cons**
+
+<ul style="list-style-type: '- ';">
+  <li>Degenerate datasets</li>
+  <li>Wasted exploration</li>
+</ul>
+:::
+::::
+
+
+
+
+## Hindsight experience replay
+
+
+:::: {.columns}
+::: {.column}
+::: {.incremental}
+- Intuition: Failure is informative
+- Idea: Relabel trajectories
+  - Pretend end-state is goal-state
+  - Rebalance the data
+  - Learn from failure
+:::
+:::
+
+::: {.column}
+![](figs/virtual-goal.png)
+:::
+::::
+
+
+::: aside
+See @andrychowicz2017HindsightExperience and [blog post](https://openai.com/index/ingredients-for-robotics-research/)
+:::
+
+
+## RL + MPC with reward relabeling
+
+$N=1$ plus learned terminal value function
 
 
 ![](figs/reward_mass_HER.png){fig-align="center"}
 
 
 
-## 
 
+
+
+
+
+## Combine the results
+
+Represents a continuum of model fidelities
 
 ![](figs/reward_mass_goodbad.png){fig-align="center"}
 
 
 ## 
+
+Baseline = combined MPC results with "good"/"bad" model
+
+![](figs/reward-RL-baseline.png){fig-align="center"}
+
+
+## 
+
+More practically, RL + MPC with a poor model and short prediction horizon compensates for nominal MPC with a poor model
 
 
 ![](figs/reward-RL-baseline-badmodel.png){fig-align="center"}
@@ -2254,14 +2374,11 @@ Reward: 0 if  $\lVert x \rVert_{\infty} \leq \epsilon$; $-1$ otherwise
 
 ## 
 
+A "good" model of course improves both
 
 ![](figs/reward-RL-baseline-goodmodel.png){fig-align="center"}
 
 
-## 
-
-
-![](figs/reward-RL-baseline.png){fig-align="center"}
 
 
 ## Highlights
@@ -2314,6 +2431,8 @@ Relabeling
 
 
 
+
+
 ## Studies in the literature
 
 (Non-exhaustive)
@@ -2323,8 +2442,16 @@ Relabeling
 ![](figs/Automation+Paradox.jpg){fig-align="center"}
 
 
+## Summary
 
+- Adding an RL element to MPC can:
+  - Compensate for a "bad" model
+  - Incorporate high-level objectives
 
+- Adding an MPC element to RL can:
+  - Enable safer operations
+  - Improve sample complexity (pretraining---not tested here, but the obvious thing to do)
+  
 
 
 ## 
@@ -2383,10 +2510,9 @@ See @arroyo2022ReinforcedModel and [BOPEST](https://ibpsa.github.io/project1-bop
 ![[-@karnchanachari2020practical]](figs/3_rlmpc_paper.png){height=100}
 
 
-
-
-
 :::
+
+
 
 
 
@@ -2407,6 +2533,7 @@ See @arroyo2022ReinforcedModel and [BOPEST](https://ibpsa.github.io/project1-bop
 - Thiago da Cunha Vasco
 - DAIS Lab
 - NSERC
+- Honeywell
 
 
 ## Slides and code
@@ -2606,16 +2733,13 @@ $U^\star$ and associated Lagrange multipliers are affine in $s_t$
 See @bemporad2002ExplicitLinear, @karg2020EfficientRepresentation, @montufar2014number
 :::
 
-## Nonlinear MPC problem formulation
 
-## State estimation, offset-free tracking
+## Other things I ignored or didn't get to
 
-## Differentiable MPC
-
-## Industrial control: theory vs practice
-
-(placeholder --- thinking of Michael's paper, also Siang/Sham's)
-
+- State estimation @nejatbakhshesfahani2023LearningbasedState
+- Differentiable MPC @gros2020DataDrivenEconomic, @amos2019DifferentiableMPC
+- Offset-free tracking @maeder2009LinearOffsetfree
+- Industrial control: theory vs practice @forbes2015ModelPredictive, @elnawawi2022InteractiveVisualization
 
 
 # Appendix

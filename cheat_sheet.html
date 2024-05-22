@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.4.553">
+<meta name="generator" content="quarto-1.4.554">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -3182,6 +3182,8 @@ window.Quarto = {
 
 
 
+<p>This is a cheat sheet for the RL-MPC tutorial.</p>
+<p>Keep this handy and also feel free to chime in during the tutorial for clarification :-)</p>
 <section id="reinforcement-learning" class="level2">
 <h2 class="anchored" data-anchor-id="reinforcement-learning">Reinforcement learning</h2>
 <div>
@@ -3267,6 +3269,28 @@ window.Quarto = {
 </div>
 <div class="quarto-layout-row">
 <div class="quarto-layout-cell" style="flex-basis: 20.0%;justify-content: flex-start;">
+<p><span class="math inline">\(Q^\pi\)</span></p>
+</div>
+<div class="quarto-layout-cell" style="flex-basis: 40.0%;justify-content: flex-start;">
+<p>State-action value function</p>
+</div>
+<div class="quarto-layout-cell" style="flex-basis: 40.0%;justify-content: flex-start;">
+<p><span class="math inline">\(Q^\pi (s,a) = \mathbb{E} \left[ G_0 | s_0 = s, a_0 = a \right]\)</span></p>
+</div>
+</div>
+<div class="quarto-layout-row">
+<div class="quarto-layout-cell" style="flex-basis: 20.0%;justify-content: flex-start;">
+<p><span class="math inline">\(Q^\star\)</span></p>
+</div>
+<div class="quarto-layout-cell" style="flex-basis: 40.0%;justify-content: flex-start;">
+<p>Optimal value function</p>
+</div>
+<div class="quarto-layout-cell" style="flex-basis: 40.0%;justify-content: flex-start;">
+<p>The above, but better</p>
+</div>
+</div>
+<div class="quarto-layout-row">
+<div class="quarto-layout-cell" style="flex-basis: 20.0%;justify-content: flex-start;">
 <p><span class="math inline">\(V^\pi\)</span></p>
 </div>
 <div class="quarto-layout-cell" style="flex-basis: 40.0%;justify-content: flex-start;">
@@ -3284,29 +3308,18 @@ window.Quarto = {
 <p>Optimal value function</p>
 </div>
 <div class="quarto-layout-cell" style="flex-basis: 40.0%;justify-content: flex-start;">
-<p>The above, but better</p>
+<p><span class="math inline">\(V^\star (s) = \max_a Q^\star(s,a)\)</span></p>
 </div>
 </div>
 <div class="quarto-layout-row">
 <div class="quarto-layout-cell" style="flex-basis: 20.0%;justify-content: flex-start;">
-<p><span class="math inline">\(Q^\pi\)</span></p>
+<p><span class="math inline">\(\pi^\star\)</span></p>
 </div>
 <div class="quarto-layout-cell" style="flex-basis: 40.0%;justify-content: flex-start;">
-<p>State-action value function</p>
+<p>Optimal policy</p>
 </div>
 <div class="quarto-layout-cell" style="flex-basis: 40.0%;justify-content: flex-start;">
-
-</div>
-</div>
-<div class="quarto-layout-row">
-<div class="quarto-layout-cell" style="flex-basis: 20.0%;justify-content: flex-start;">
-<p><span class="math inline">\(Q^\star\)</span></p>
-</div>
-<div class="quarto-layout-cell" style="flex-basis: 40.0%;justify-content: flex-start;">
-<p>Optimal value function</p>
-</div>
-<div class="quarto-layout-cell" style="flex-basis: 40.0%;justify-content: flex-start;">
-
+<p><span class="math inline">\(\pi^\star (s) = \text{arg}\max_a Q^\star (s,a)\)</span></p>
 </div>
 </div>
 </div>
