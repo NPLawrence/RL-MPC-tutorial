@@ -2,6 +2,7 @@
 title: "A reinforcement learning perspective on industrial model predictive control" 
 subtitle: "Upper Bound 2024"
 author: "Nathan Lawrence"
+institute: "UBC mathematics"
 format: 
     html:
         html-table-processing: none
@@ -17,7 +18,7 @@ format:
 title-slide-attributes: 
   data-background-image: figs/qr-cheatsheet.png
   data-background-size: 15%
-  data-background-position: 98% 98%
+  data-background-position: 95% 90%
 bibliography: tutorial.bib
 ---
 
@@ -567,6 +568,14 @@ Figure: [Spinning Up](https://spinningup.openai.com/en/latest/spinningup/rl_intr
 :::
 
 
+## Break
+
+. . .
+
+![[Open RL Benchmark](https://wandb.ai/openrlbenchmark/openrlbenchmark/reports/Atari-CleanRL-s-DQN--VmlldzoxNjk3NjYx) [@huang2024OpenRL]](videos/atari_breakout.gif){height=350 fig-align="center"}
+
+
+
 
 # Examples
 
@@ -605,8 +614,17 @@ Optimization is trivial:
 \begin{align}
 \pi(s) &= \arg\max \text{DQN}(s) \\
 &= \arg\max\left\{ q_1, \ldots, q_d \right\} \\
-&\approx \arg\max_{a} Q^\pi (s,a_i)
 \end{align}
+
+. . .
+
+\begin{align}
+&\bbox[#FF9999,2pt]{\approx} \arg\max_{a} Q^\pi (s,a_i)
+\end{align}
+
+::: {.r-stack}
+**But approximation is difficult**
+:::
 
 ##  {.center}
 
@@ -696,17 +714,17 @@ What DQN delivers:
 
 ## Finer control requires continuous actions
 
-Consider two separate networks:
+Consider two separate networks with parameters $\theta, \phi$:
 
 -   Policy $\pi_{\theta}$ (aka "actor")
--   $Q$-network $Q_\varphi$ (aka "critic")
+-   $Q$-network $Q_\phi$ (aka "critic")
 
-Idea: Use $Q_\varphi$ as a loss function for $\pi_{\theta}$: 
-$$\text{maximize}_{\theta} \quad \mathbb{E} \left[ Q_\varphi(s, \pi_\theta (s)) \right]$$
+Idea: Use $Q_\phi$ as a loss function for $\pi_{\theta}$: 
+$$\text{maximize}_{\theta} \quad \mathbb{E} \left[ Q_\phi(s, \pi_\theta (s)) \right]$$
 
 ##  {.center}
 
-Then $$\max_{a} Q^\pi (s,a) \approx Q_\varphi (s, \pi_{\theta} (s))$$
+Then $$\max_{a} Q^\pi (s,a) \approx Q_\phi (s, \pi_{\theta} (s))$$
 
 ::: {.r-fit-text}
 An easy-to-evaluate approximation of the argmax operation!
@@ -714,7 +732,7 @@ An easy-to-evaluate approximation of the argmax operation!
 
 ## Disclaimer
 
-This doesn't actually work.
+The simplest vanilla implementations don't actually work.
 
 See the DDPG, TD3, SAC papers for all the tricks/hacks that make this idea work.
 
@@ -785,7 +803,7 @@ We isolate two components:
 
 - Negative 2-norm of: 
   - normalized velocities
-  - $-1 - \cos( \theta_1 )$, $1 - \cos( \theta_2 )$
+  - $\cos( \pi ) - \cos( \theta_1 )$, $\cos( 0 ) - \cos( \theta_2 )$
 
 . . .
 
@@ -934,7 +952,7 @@ What if we know something about the environment?
 :::: {.columns}
 ::: {.column width=60%}
 - RL maximizes reward
-- Control minimized cost
+- Control minimizes cost
 - RL uses states and actions $s_t, a_t$
 - Control ... $x_t, u_t$
 :::
@@ -969,9 +987,9 @@ $$\text{maximize }\quad \mathbb{E}_{\pi} \left[ \sum_{t=0}^{\infty} \gamma^t r(s
 
 
 \begin{align}
-\text{minimize } && \sum_{t=0}^{\infty} \gamma^t \left( x_t^2 + \rho u_t^2 \right)\\
-\text{where } && x_{t+1} = a x_t + b u_t \\
-&& u_t = -k x_t
+\text{minimize } \quad & \sum_{t=0}^{\infty} \gamma^t \left( x_t^2 + \rho u_t^2 \right)\\
+\text{where } \quad & x_{t+1} = a x_t + b u_t \\
+& u_t = -k x_t
 \end{align}
 
 :::: {.columns}
@@ -993,10 +1011,10 @@ $$\text{maximize }\quad \mathbb{E}_{\pi} \left[ \sum_{t=0}^{\infty} \gamma^t r(s
 Focus on $\gamma$ and $k$:
 
 \begin{align}
-\text{minimize } && \sum_{t=0}^{\infty} \gamma^t \left( x_t^2 + u_t^2 \right)\\
-\text{where } && x_{t+1} = 1.1 x_t + 0.5 u_t \\
-&& u_t = -k x_t \\
-&& x_0 = 1.0
+\text{minimize } \quad & \sum_{t=0}^{\infty} \gamma^t \left( x_t^2 + u_t^2 \right)\\
+\text{where } \quad & x_{t+1} = 1.1 x_t + 0.5 u_t \\
+& u_t = -k x_t \\
+& x_0 = 1.0
 \end{align}
 
 
@@ -1025,7 +1043,11 @@ u_t &= -k \left( 1.1 - 0.5 k \right)^t
 \end{align}
 :::
 
-## Returns are easy to compute
+::: aside
+Note $k=0$ would be disastrous.
+:::
+
+## Costs are easy to compute
 
 
 
@@ -1252,8 +1274,8 @@ Consider the policy $$u(t) = k_p e(t) + k_i \int_{0}^{t} e(\tau) d \tau$$
 1.  Assume that $k_p, k_i$ are chosen such that the system is stable
 2.  Then $u(t) \to \bar{u}$, $e(t) \to \bar{e}$
 3.  We can write $$ \bar{u} = k_p \bar{e} + k_i \lim_{t \to \infty} \int_{0}^{t} e(\tau) d \tau$$
-4.  The integral term must converge
-5.  Zero offset!
+4.  The integral term must have a finite limit
+5.  Zero offset! ($e(t) \to 0$)
 :::
 
 
@@ -1310,6 +1332,13 @@ Consider the policy $$u(t) = k_p e(t) + k_i \int_{0}^{t} e(\tau) d \tau$$
 ::: aside
 See [addendum](#multiPID) for details/experiments dealing with multiloop PID
 :::
+
+
+## Break
+
+![](figs/Dunning-Kruger.jpg){fig-align="center"}
+
+
 
 # LQR
 
@@ -1457,10 +1486,6 @@ See @borrelli2017predictive or [slides](https://kwonlecture.snu.ac.kr/wp-content
 :::
 
 
-
-## Break
-
-![](figs/Dunning-Kruger.jpg){fig-align="center"}
 
 
 
@@ -1742,7 +1767,7 @@ RL
 \end{align}
 :::
 
-::: {.fragment .fade-in-then-out}
+::: {.fragment .fade-in}
 \begin{align}
 \min_{u_0, u_1, \ldots u_{N - 1}} \quad & \sum_{k=0}^{N-1} \ell(x_k, u_k)\quad + \overbrace{V_{\theta}(x_N)}^{\text{Learnable residual}}\\
 \text{where }\quad & x_0 = s_t \\
@@ -1750,16 +1775,20 @@ RL
 & \underbrace{x_k \in \mathcal{X},\quad u_k \in \mathcal{U}}_{\text{Prior engineering}} \\
 \end{align}
 :::
+:::
 
-::: {.fragment .fade-in}
+
+## A special case
+
+::: {.r-stack}
 \begin{align}
-\min_{u_0, u_1, \ldots u_{N - 1}} & \sum_{k=0}^{N-1} \ell(x_k, u_k) + V_{\theta}(x_N)\\
-\text{where }\quad & x_0 = s_t \\
-& x_{k+1} = f(x_k, u_k) \\
-& x_k \in \mathcal{X},\quad u_k \in \mathcal{U} \\
+\min_{u_0} \quad & \ell(x_0, u_0) + V_{\theta}(x_1)\\
+\text{where } \quad & x_0 = s_t \\
+& x_{1} = f(x_0, u_0) \\
+& x_1 \in \mathcal{X},\quad u_0 \in \mathcal{U} \\
 \end{align}
 :::
-:::
+
 
 
 
@@ -1856,14 +1885,12 @@ phi_m_2_set = model.set_variable(var_type='_u', var_name='phi_m_2_set')
 
 Define the states, inputs, parameters, and function composing an ODE $$\dot{x} = f(x, u)$$
 
-``` {.python code-line-numbers="1,14,15"}
+``` {.python code-line-numbers="1-3,12,13"}
 Theta_1 = model.set_variable('parameter', 'Theta_1') 
 Theta_2 = model.set_variable('parameter', 'Theta_2')
 Theta_3 = model.set_variable('parameter', 'Theta_3')
 
-c = np.array([2.697,  2.66,  3.05, 2.86])*1e-3
-d = np.array([6.78,  8.01,  8.82])*1e-5
-
+c, d = np.array([2.697,  2.66,  3.05, 2.86])*1e-3, np.array([6.78,  8.01,  8.82])*1e-5
 dphi_next = vertcat(
     -c[0]/Theta_1*(phi_1-phi_1_m)-c[1]/Theta_1*(phi_1-phi_2)-d[0]/Theta_1*dphi[0],
     -c[1]/Theta_2*(phi_2-phi_1)-c[2]/Theta_2*(phi_2-phi_3)-d[1]/Theta_2*dphi[1],
@@ -2006,13 +2033,6 @@ Modular libraries:
 
 Like with the MPC packages, we're choosing the best one for our purposes---the other ones are absolutely worth looking into!
 
-## Break?
-
-![](videos/atari_breakout.gif){height=350 fig-align="center"}
-
-::: aside
-[Open RL Benchmark](https://wandb.ai/openrlbenchmark/openrlbenchmark/reports/Atari-CleanRL-s-DQN--VmlldzoxNjk3NjYx) [@huang2024OpenRL]
-:::
 
 
 ## Combining RL and MPC
@@ -2050,7 +2070,7 @@ do-mpc:
 
 Value function training
 
-``` {.python code-line-numbers="1,7,8,13,18"}
+``` {.python code-line-numbers="1,7,8,12,13,18"}
 data = rb.sample(args.batch_size)
 with torch.no_grad():
     next_state_actions, next_state_log_pi, _ = actor.get_action(data.next_observations)
@@ -2171,6 +2191,7 @@ class CustomEnv(gym.Env):
   def step(self, action):
     ...
     return observation, reward, done, info
+
   def reset(self):
     ...
     return observation
@@ -2381,7 +2402,7 @@ A "good" model of course improves both
 
 
 
-## Highlights
+## Highlights {visibility="hidden"}
 
 
 ![](figs/reward_mass_HER.png){fig-align="center"}
@@ -2433,11 +2454,7 @@ Relabeling
 
 
 
-## Studies in the literature
-
-(Non-exhaustive)
-
-##
+## {visibility="hidden"}
 
 ![](figs/Automation+Paradox.jpg){fig-align="center"}
 
@@ -2559,7 +2576,7 @@ See @arroyo2022ReinforcedModel and [BOPEST](https://ibpsa.github.io/project1-bop
 
 # Addendum
 
-## Multiloop PID {#multiPID}
+## Multiloop PID {#multiPID .center}
 
 
 ##  {.center}
@@ -2584,7 +2601,6 @@ We could continue with PID, but generally:
     - PID is usually used to regulate a single variable system
     - New tuning parameters get introduced with multivariable methods
     - Nonetheless you should still know about PID!
-3. See addendum for some additional experiments/references
 
 
 
@@ -2627,7 +2643,7 @@ We need a scalable approach to handling loop interactions!
 
 
 
-## MPC control law is nonlinear {#mpcisnonlinear}
+## MPC control law is nonlinear {#mpcisnonlinear .center}
 
 
 ![](figs/mpc_PWA.png)
