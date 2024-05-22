@@ -1790,8 +1790,6 @@ RL
 :::
 
 
-
-
 ## Break
 
 ![](figs/Chaotic+Grad+Student+HiRes.jpg){fig-align="center"}
