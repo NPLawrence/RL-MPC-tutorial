@@ -480,7 +480,7 @@ Like $V^\star$, $Q^\star$ satisfies a neat optimality condition:
 
 Iterating $q^{k+1} = B(q^k)$ **may** converge to some $q$ where $q = B(q)$
 
-![](figs/fixedpoint.png){height=350 fig-align="center"}
+![*Close your eyes and exclaim "Bellman!"*](figs/fixedpoint.png){height=350 fig-align="center"}
 
 ##  Fixed-point iteration in value space {.center}
 
@@ -914,7 +914,28 @@ Sampling time:
 -   Old: $dt = 0.2$ seconds
 -   New: $dt = 0.1$ seconds
 
+
 ## Restricted action space
+
+$\ell^\infty$ reward, $\gamma = 0.95$, 5hz
+
+:::: {.columns}
+::: {.column width="50%"}
+![](videos/bloopers/5hz-smallTorque_gamma95_acrobat-sac__linf__0__episode-1950.mp4)
+:::
+
+::: {.column width="50%"}
+![](figs/reward_blooper_linf_gamma_95.png){width="100%"}
+:::
+::::
+
+
+::: {.fragment .fade-in}
+![](figs/edmonton-oilers-hunter.gif){.absolute top=200 right=100}
+:::
+
+
+## Restricted action space cont'd
 
 "Height" reward, $\gamma = 0.99$, 5hz
 
@@ -928,19 +949,7 @@ Sampling time:
 :::
 ::::
 
-## Restricted action space cont'd
 
-$\ell^\infty$ reward, $\gamma = 0.95$, 5hz
-
-:::: {.columns}
-::: {.column width="50%"}
-![](videos/bloopers/5hz-smallTorque_gamma95_acrobat-sac__linf__0__episode-1950.mp4)
-:::
-
-::: {.column width="50%"}
-![](figs/reward_blooper_linf_gamma_95.png){width="100%"}
-:::
-::::
 
 ## An analytic solution {.center}
 
