@@ -6,4 +6,6 @@
 
 [Code here](https://github.com/NPLawrence/RL-MPC-tutorial/tree/main/code)
 
+---
 
+You can view the original slides [here](./slides/slides_original.html).

@@ -3,6 +3,8 @@ title: "A reinforcement learning perspective on industrial model predictive cont
 subtitle: "Upper Bound 2024"
 author: "Nathan Lawrence"
 institute: "UBC mathematics"
+date: last-modified
+abstract: "Online version of the presentation given at [Upper Bound 2024](https://www.upperbound.ai/speakers/SPEWNJXVTAX). Code and slides available [here](https://github.com/NPLawrence/RL-MPC-tutorial)."
 format: 
     html:
         html-table-processing: none
@@ -15,23 +17,13 @@ format:
         auto-play-media: true
         embed-resources: true
     pdf: default
-title-slide-attributes: 
-  data-background-image: figs/qr-cheatsheet.png
-  data-background-size: 15%
-  data-background-position: 95% 90%
 bibliography: tutorial.bib
 ---
 
 ## 
 
 ::: r-stack
-![](figs/1_intro_rlmpc.png){fig-align="center"}
-
-![](figs/2_intro_rlmpc.png){.fragment fig-align="center"}
-
-![](figs/3_intro_rlmpc.png){.fragment fig-align="center"}
-
-![](figs/4_intro_rlmpc.png){.fragment fig-align="center"}
+![](figs/4_intro_rlmpc.png){fig-align="center"}
 :::
 
 ::: aside
@@ -58,17 +50,13 @@ Day-to-day life depends on safely regulating a system around a constant value:
 :::
 ::::
 
-![](figs/sysid.png){height=150 fig-align="center"}
+![](figs/sysid.png){height=125 fig-align="center"}
 
 
 ## 
 
 
-::: r-stack
-![](figs/1_mapofcontrol.png){fig-align="center"}
-
-![](figs/2_mapofcontrol.png){.fragment fig-align="center"}
-:::
+![](figs/2_mapofcontrol.png){fig-align="center"}
 
 
 
@@ -87,7 +75,7 @@ Combine reinforcement learning (RL) & model predictive control (MPC)!
 :::
 :::
 ::: {.column width="20%"}
-![Cheat sheet! ([nplawrence.com](https://nplawrence.com))](figs/qr-cheatsheet.png)
+![Cheat sheet! ([github](https://github.com/NPLawrence/RL-MPC-tutorial))](figs/qr-github.png)
 :::
 ::::
 
@@ -102,7 +90,7 @@ Combine reinforcement learning (RL) & model predictive control (MPC)!
 ::: {layout="[[0.6,1,1]]" layout-valign="center"}
 Apply torque
 
-![](figs/pendulum.gif){height=350 fig-align="center"}
+![](videos/pendulum.gif){height=350 fig-align="center"}
 
 <div>
 
@@ -145,7 +133,7 @@ The agent is the learner:
 -   Decides which actions to take
 -   Improves its behavior
 
-![](figs/RL_illustration.png){fig-align="center"}
+![](figs/RL_illustration.png){height=250 fig-align="center"}
 
 ::: aside
 Figure: @weng2018bandit
@@ -158,7 +146,7 @@ Figure: @weng2018bandit
 -   A scalar feedback signal
 -   Indicates which states & actions are good
 
-![](figs/RLSutton.png){height="250" fig-align="center"}
+![](figs/RLSutton.png){height=250 fig-align="center"}
 
 ::: aside
 Figure: @sutton2018ReinforcementLearning
@@ -192,11 +180,11 @@ Rewards assigned by a function $$r_t = r(s_t, a_t)$$
 
 ::: r-stack
 ::: {.fragment .fade-in-then-out fragment-index=1}
-![](figs/gritty.gif){ height=190 fig-align="center"}
+![](videos/gritty.gif){ height=190 fig-align="center"}
 :::
 
 ::: {.fragment .fade-in-then-out fragment-index=2}
-![](figs/Honey_UDC.jpg){ height=210 fig-align="center"}
+![](figs/Honey_UDC.png){ height=210 fig-align="center"}
 :::
 
 ::: {.fragment .fade-in-then-out fragment-index=3}
@@ -205,30 +193,13 @@ Rewards assigned by a function $$r_t = r(s_t, a_t)$$
 :::
 
 
-## The space of policies is vast {visibility="hidden"}
-
-
-::: {.incremental}
--   Completely random
--   An industrial control module
--   Neural network
-:::
-
-::: r-stack
-![](figs/gritty.gif){.fragment height=190 fig-align="center"}
-
-![](figs/Honey_UDC.jpg){.fragment height=210 fig-align="center"}
-
-![](figs/nn.png){.fragment height=230 fig-align="center"}
-:::
-
 
 ## Restricting the policy space is practical
 
 
 ::: {layout="[[0.25,1]]" layout-valign="center"}
 
-![](figs/Honey_UDC.jpg){height=150 fig-align="center"}
+![](figs/Honey_UDC.png){height=150 fig-align="center"}
 
 
 ![](figs/rl-pid.png){height=325 fig-align="center"}
@@ -257,7 +228,6 @@ $\rightarrow$ not enough urgency
 :::
 :::
 
-. . .
 
 :::{.r-stack}
 (Also, might diverge, which is bad.)
@@ -291,13 +261,8 @@ Return is Upper Bounded across all possible trajectories $$\lvert G_t \rvert \le
 [Geometric series (Wikipedia)](https://en.wikipedia.org/wiki/Geometric_series)
 :::
 
-## The reinforcement learning problem {auto-animate="true"}
 
-::: {style="margin-top: 200px;"}
-$$ \text{maximize} \quad J(\pi) = \mathbb{E}_{\pi}\left[ \sum_{t=0}^{\infty} \gamma^{t}r(s_t,a_t) \right]$$
-:::
-
-## The reinforcement learning problem {auto-animate="true"}
+## The reinforcement learning problem
 
 $$ \text{maximize} \quad J(\pi) = \mathbb{E}_{\pi}\left[ \sum_{t=0}^{\infty} \gamma^{t}r(s_t,a_t) \right]$$
 
@@ -336,10 +301,11 @@ Then the trajectory starting at $s_t^\star$ should still be optimal $$s_{t}^\sta
 
 For a given policy $\pi$...
 
-Define the **state-action value** [^1] to be $$Q^\pi (s,a) = \mathbb{E}_{\pi}\left[ \sum_{t=0}^{\infty} \gamma^{t}r(s_t,a_t) \middle| s_0 = s, a_0 = a \right]$$
+Define the **state-action value** to be $$Q^\pi (s,a) = \mathbb{E}_{\pi}\left[ \sum_{t=0}^{\infty} \gamma^{t}r(s_t,a_t) \middle| s_0 = s, a_0 = a \right]$$
 
-[^1]: Or "$Q$-function"
-
+::: aside
+Aka "$Q$-function"
+:::
 
 ## 
 
@@ -350,11 +316,11 @@ V^\pi (s) &= \mathbb{E}_{\pi}\left[ \sum_{t=0}^{\infty} \gamma^{t}r(s_t,a_t) \mi
 \end{align}
 
 
-## Abstracting the objective through value functions 
+## Abstracting the objective through value functions {.center}
 
-::: {style="margin-top: 200px;"}
+
 $$J(\pi) = \mathbb{E}_{s_0 \sim p(s_0)}\left[ V^\pi (s_0) \right]$$
-:::
+
 
 ## What's the big deal with these magical functions?
 
@@ -407,8 +373,8 @@ These are the **Bellman equations** for $V$ and $Q$
 \end{align}
 
 
-::: {.fragment .r-fit-text}
-Bellman equation holds for any policy!
+::: {.r-stack}
+**Bellman equation holds for any policy!**
 :::
 
 ## Optimal policy
@@ -440,8 +406,8 @@ V^\star (s) &= \mathbb{E}_{a \sim \pi^\star (a | s)} \left[ r(s,a) + \gamma \mat
 ![](figs/v_backup.png){height=150 fig-align="center"}
 :::
 
-::: {.fragment .r-fit-text}
-One-step planning is long-term optimal
+:::{.r-stack}
+**One-step planning is long-term optimal**
 :::
 
 ## Bellman optimality equation
@@ -453,13 +419,12 @@ $$V^\star (s) = \max_{a} Q^\star (s,a)$$
 ...Even easier!
 :::
 
-. . .
 
 Therefore, $$\pi^\star (s) = \text{arg}\max_{a} Q^\star (s,a)$$
 
 
-::: {.fragment .r-fit-text}
-Learn $Q^\star$ and then maximize it!
+:::{.r-stack}
+**Learn $Q^\star$ and then maximize it!**
 :::
 
 ## Evaluate, improve, repeat... {.center}
@@ -515,12 +480,6 @@ $$
 :::
 
 
-
-
-##  {visibility="hidden"}
-
-$$\pi^{+}(s) = \bbox[#DCD0FF,2pt]{\text{arg}\max\limits_{a}} \left\{ r(s,a) + \gamma \bbox[#FF9999,2pt]{\mathbb{E}} \left[ \bbox[#AAF0D1,2pt]{V^\pi (s')} \right] \right\}$$
-
 ## Three important approximations
 
 
@@ -568,11 +527,10 @@ Figure: [Spinning Up](https://spinningup.openai.com/en/latest/spinningup/rl_intr
 :::
 
 
-## Break
+## Break {.center}
 
-. . .
 
-![[Open RL Benchmark](https://wandb.ai/openrlbenchmark/openrlbenchmark/reports/Atari-CleanRL-s-DQN--VmlldzoxNjk3NjYx) [@huang2024OpenRL]](videos/atari_breakout.gif){height=350 fig-align="center"}
+![[Open RL Benchmark](https://wandb.ai/openrlbenchmark/openrlbenchmark/reports/Atari-CleanRL-s-DQN--VmlldzoxNjk3NjYx) [@huang2024OpenRL]](videos/atari_breakout.gif){fig-align="center"}
 
 
 
@@ -585,7 +543,7 @@ Figure: [Spinning Up](https://spinningup.openai.com/en/latest/spinningup/rl_intr
 
 ::: {layout="[[65,35]]" layout-valign="center"}
 
-![](figs/cart_pole.gif){height="90%"}
+![](videos/cart_pole.gif){height="90%"}
 
 **Don't fall!**
 :::
@@ -616,7 +574,6 @@ Optimization is trivial:
 &= \arg\max\left\{ q_1, \ldots, q_d \right\} \\
 \end{align}
 
-. . .
 
 \begin{align}
 &\bbox[#FF9999,2pt]{\approx} \arg\max_{a} Q^\pi (s,a_i)
@@ -650,22 +607,12 @@ Equation 3: Approximately respect the Bellman equation $[q_1, \ldots, q_d] \appr
 ![Final](videos/dqn/episode-8358.gif){width=300}
 :::
 
-## Acrobot {auto-animate="true"}
+
+
+## Acrobot
 
 ::: {layout="[[65,35]]" layout-valign="center"}
-![](figs/acrobot.gif)
-
-<div>
-
-**Touch the line!**
-
-</div>
-:::
-
-## Acrobot {auto-animate="true"}
-
-::: {layout="[[65,35]]" layout-valign="center"}
-![](figs/acrobot.gif)
+![](videos/acrobot.gif)
 
 <div>
 
@@ -681,13 +628,13 @@ Equation 3: Approximately respect the Bellman equation $[q_1, \ldots, q_d] \appr
 Applying DQN...
 
 ::: {layout="[[1,1], [1,1]]"}
-![Initial](videos/dqn/acrobot-dqn__0__episode-0.mp4){width=200}
+![Initial](videos/dqn/acrobot-dqn__0__episode-0.gif){width=200}
 
-![After some time...](videos/dqn/acrobot-dqn__0__episode-796.mp4){width=200}
+![After some time...](videos/dqn/acrobot-dqn__0__episode-796.gif){width=200}
 
-![Almost there...](videos/dqn/acrobot-dqn__0__episode-1592.mp4){width=200}
+![Almost there...](videos/dqn/acrobot-dqn__0__episode-1592.gif){width=200}
 
-![Final](videos/dqn/acrobot-dqn__0__episode-1990.mp4){width=200}
+![Final](videos/dqn/acrobot-dqn__0__episode-1990.gif){width=200}
 :::
 ::: aside
 Standing upright would be better than all of these...
@@ -726,8 +673,8 @@ $$\text{maximize}_{\theta} \quad \mathbb{E} \left[ Q_\phi(s, \pi_\theta (s)) \ri
 
 Then $$\max_{a} Q^\pi (s,a) \approx Q_\phi (s, \pi_{\theta} (s))$$
 
-::: {.r-fit-text}
-An easy-to-evaluate approximation of the argmax operation!
+:::{.r-stack}
+**An easy-to-evaluate approximation of the argmax operation!**
 :::
 
 ## Disclaimer
@@ -776,7 +723,7 @@ We isolate two components:
 ::: {layout="[[1,1]]" layout-valign="center/"}
 ![](figs/acrobot.png){height=300 fig-align="center"}
 
-![](figs/dp.gif){height=300 fig-align="center"}
+![](videos/dp.gif){height=300 fig-align="center"}
 :::
 
 ::: aside
@@ -789,7 +736,6 @@ We isolate two components:
 - $0$ if above line 
 - $-1$ otherwise
 
-. . .
 
 ![](figs/reward_default.png){height=300 fig-align="center"}
 
@@ -805,7 +751,6 @@ We isolate two components:
   - normalized velocities
   - $\cos( \pi ) - \cos( \theta_1 )$, $\cos( 0 ) - \cos( \theta_2 )$
 
-. . .
 
 ![](figs/reward_l2.png){height=300 fig-align="center"}
 
@@ -819,7 +764,6 @@ We isolate two components:
 
 - Height of the outer link's endpoint
 
-. . .
 
 ![](figs/reward_height.png){height=300 fig-align="center"}
 
@@ -834,7 +778,6 @@ We isolate two components:
   - Deviation from maximum height
   - Normalized velocities
 
-. . .
 
 ![](figs/reward_linf.png){height=300 fig-align="center"}
 
@@ -843,9 +786,6 @@ We isolate two components:
 :::
 
 
-## Summary, $\gamma = 0.99$ {visibility="hidden"}
-
-![](figs/reward_gamma_99_all.png){fig-align="center"}
 
 ------------------------------------------------------------------------
 
@@ -921,7 +861,7 @@ $\ell^\infty$ reward, $\gamma = 0.95$, 5hz
 
 :::: {.columns}
 ::: {.column width="50%"}
-![](videos/bloopers/5hz-smallTorque_gamma95_acrobat-sac__linf__0__episode-1950.mp4)
+![](videos/bloopers/5hz-smallTorque_gamma95_acrobat-sac__linf__0__episode-1950.gif)
 :::
 
 ::: {.column width="50%"}
@@ -930,18 +870,13 @@ $\ell^\infty$ reward, $\gamma = 0.95$, 5hz
 ::::
 
 
-::: {.fragment .fade-in}
-![](figs/edmonton-oilers-hunter.gif){.absolute top=200 right=100}
-:::
-
-
 ## Restricted action space cont'd
 
 "Height" reward, $\gamma = 0.99$, 5hz
 
 :::: {.columns}
 ::: {.column width="50%"}
-![](videos/bloopers/5hz-smallTorque_gamma99_acrobat-sac__height__0__episode-1950.mp4)
+![](videos/bloopers/5hz-smallTorque_gamma99_acrobat-sac__height__0__episode-1950.gif)
 :::
 
 ::: {.column width="50%"}
@@ -967,7 +902,7 @@ What if we know something about the environment?
 :::
 
 ::: {.column width=40%}
-![Cheat sheet! ([nplawrence.com](https://nplawrence.com))](figs/qr-cheatsheet.png)
+![Cheat sheet! ([github](https://github.com/NPLawrence/RL-MPC-tutorial))](figs/qr-github.png)
 :::
 ::::
 
@@ -1087,16 +1022,12 @@ By properties of geometric series:
 $\sum_{i = 0}^{\infty} \alpha \beta^i = \alpha \frac{1}{1 - \beta}$
 :::
 
-## A 1-D optimization problem {auto-animate="true"}
-
-::: {style="margin-top: 200px; margin-left: 100px;"}
-$$\min_{k} \frac{1 +  k^2}{1 - \gamma\left(1.1 - 0.5 k\right)^2}$$
-:::
 
 
 
 
-## A 1-D optimization problem {auto-animate="true"}
+
+## A 1-D optimization problem
 
 :::: {.columns}
 ::: {.column}
@@ -1186,17 +1117,11 @@ A fixed point in $P$!
 
 Finding this fixed point in **parameter space** gives the optimal solution in value **function space**
 
-## {background-iframe="https://www.desmos.com/calculator/ghaskgjvc0?embed"}
 
-##  {visibility="hidden"}
+## 
 
-::: {.r-stretch}
-![](figs/desmos-graph.png){fig-align="center"}
-:::
+![Desmos [[link]](https://www.desmos.com/calculator/j1nsogiwhc)](figs/desmos-graph.png){height=400 fig-align="center"}
 
-##  {visibility="hidden"}
-
-[https://www.desmos.com/calculator/ghaskgjvc0](https://www.desmos.com/calculator/ghaskgjvc0)
 
 
 ## Recap lessons from RL section
@@ -1242,9 +1167,9 @@ A common control task is to bring a system to a constant value:
 ## 
 
 ::: {layout="[[1,1]]"}
-!["Input"](figs/anim_impulse_u.gif)
+!["Input"](videos/anim_impulse_u.gif)
 
-!["Output"](figs/anim_impulse_y.gif)
+!["Output"](videos/anim_impulse_y.gif)
 :::
 
 Some system settles at zero...how do we get it to settle somewhere else?
@@ -1262,9 +1187,9 @@ Some system settles at zero...how do we get it to settle somewhere else?
 Consider the policy $$u(t) = k_p e(t) \phantom{+ k_i \int_{0}^{t} e(\tau) d \tau}$$
 
 ::: {layout="[[1,1]]"}
-![](figs/anim_P_u.gif)
+![](videos/anim_P_u.gif)
 
-![](figs/anim_P_y.gif)
+![](videos/anim_P_y.gif)
 :::
 
 ## Proportional-Integral control
@@ -1272,9 +1197,9 @@ Consider the policy $$u(t) = k_p e(t) \phantom{+ k_i \int_{0}^{t} e(\tau) d \tau
 Consider the policy $$u(t) = k_p e(t) + k_i \int_{0}^{t} e(\tau) d \tau$$
 
 ::: {layout="[[1,1]]"}
-![](figs/anim_PI_u.gif)
+![](videos/anim_PI_u.gif)
 
-![](figs/anim_PI_y.gif)
+![](videos/anim_PI_y.gif)
 :::
 
 ## The magic of integral action
@@ -1292,7 +1217,7 @@ Consider the policy $$u(t) = k_p e(t) + k_i \int_{0}^{t} e(\tau) d \tau$$
 
 :::: {.columns}
 ::: {.column width="40%"}
-![](figs/PID_Compensation_Animated.gif)
+![](videos/PID_Compensation_Animated.gif)
 :::
 
 ::: {.column width="60%"}
@@ -1343,9 +1268,9 @@ See [addendum](#multiPID) for details/experiments dealing with multiloop PID
 :::
 
 
-## Break
+## Break {.center}
 
-![](figs/Dunning-Kruger.jpg){fig-align="center"}
+![](figs/Dunning-Kruger.png){fig-align="center"}
 
 
 
@@ -1369,26 +1294,9 @@ We already solved this in the scalar case!
 $M \geq 0$, $R >$, $\gamma \in [0,1]$
 :::
 
-## General solution {auto-animate="true"}
 
-1.  There is $P > 0$ such that $V^\star (x) = x^T P x$. Then via the **Bellman equation** $$x_{t}^{T} P x_t = \min_{u} \left\{ x_{t}^{T} M x_t +  u_{t}^{T} R u_t + \gamma \left( A x + B u \right)^{T} P \left( A x + B u \right) \right\}$$
 
-## General solution {auto-animate="true"}
-
-1.  Apply the **Bellman equation** with $V^\star (x) = x^T P x$
-
-## General solution {auto-animate="true"}
-
-1.  Apply the **Bellman equation** with $V^\star (x) = x^T P x$
-2.  Enforce $$0 = \nabla_u \left\{ \cdots \right\}$$
-
-## General solution {auto-animate="true"}
-
-1.  Apply the **Bellman equation** with $V^\star (x) = x^T P x$
-2.  Enforce $0 = \nabla_u \left\{ \cdots \right\}$
-3.  Obtain $u = -K x$ where $$K = \gamma \left( R + \gamma B^T P B \right)^{-1} B^T P A$$
-
-## General solution {auto-animate="true"}
+## General solution
 
 1.  Apply the **Bellman equation** with $V^\star (x) = x^T P x$
 2.  Enforce $0 = \nabla_u \left\{ \cdots \right\}$
@@ -1500,24 +1408,20 @@ See @borrelli2017predictive or [slides](https://kwonlecture.snu.ac.kr/wp-content
 
 # Nonlinear policies
 
-##  {auto-animate="true"}
 
-::: {style="margin-top: 300px; margin-left: 100px;"}
-What if a controller could anticipate an obstacle?
-:::
 
-##  {auto-animate="true"}
+##
 
 What if a controller could anticipate an obstacle?
 
-![](figs/lane_change.png){.r-stretch fig-align="center"}
+![](figs/lane_change.png){height=400 fig-align="center"}
 
 
 ## 
 
 From this...
 
-![](figs/anim_dip_no-obstacle.gif){fig-align="center"}
+![](videos/anim_dip_no-obstacle.gif){fig-align="center"}
 
 
 
@@ -1525,7 +1429,7 @@ From this...
 
 To this...
 
-![](figs/anim_dip.gif){fig-align="center"}
+![](videos/anim_dip.gif){fig-align="center"}
 
 
 ## Anticipating constraints is inherently nonlinear
@@ -1607,10 +1511,10 @@ See @borrelli2017predictive, Chapter 12
 
 ##
 
-::: {layout="[[1,1]]" layout-valign="bottom"}
-![](figs/mpc_closedlooptraj1.png){height=350}
+::: {layout="[[1,1]]" layout-valign="center"}
+![](figs/mpc_closedlooptraj1.png){width=350}
 
-![](figs/mpc_closedlooptraj2.png){height=400}
+![](figs/mpc_closedlooptraj2.png){width=350}
 :::
 
 Solid - realized closed-loop trajectories
@@ -1628,9 +1532,9 @@ LQR
 
 MPC
 
-![](figs/lqr_constrainedSS.png){height="400"}
+![](figs/lqr_constrainedSS.png){height=300}
 
-![](figs/mpc_constrainedSS.png){height="400"}
+![](figs/mpc_constrainedSS.png){height=300}
 :::
 
 ::: aside
@@ -1696,13 +1600,13 @@ LQR!
 & u_{k} = -K x_k,\quad N_c \leq k < N
 \end{align}
 
-::: {.r-fit-text}
-Mimic infinite horizon behavior
+::: {.r-stack}
+**Mimic infinite horizon behavior**
 :::
 
 ## 
 
-![](figs/cl.gif){fig-align="center"}
+![](videos/cl.gif){height=400 fig-align="center"}
 
 
 
@@ -1766,25 +1670,14 @@ RL
 
 ## MPC + value function
 
-::: {.r-stack}
-::: {.fragment .fade-in-then-out}
-\begin{align}
-\min_{u_0, u_1, \ldots u_{N - 1}} \quad & \sum_{k=0}^{N-1} \ell(x_k, u_k) \phantom{\quad + \overbrace{V_{\theta}(x_N)}^{\text{Learnable residual}}}\\
-\text{where }\quad & x_0 = s_t \\
-& x_{k+1} = f(x_k, u_k) \\
-& \underbrace{x_k \in \mathcal{X},\quad u_k \in \mathcal{U}}_{\text{Prior engineering}} \\
-\end{align}
-:::
 
-::: {.fragment .fade-in}
+
 \begin{align}
 \min_{u_0, u_1, \ldots u_{N - 1}} \quad & \sum_{k=0}^{N-1} \ell(x_k, u_k)\quad + \overbrace{V_{\theta}(x_N)}^{\text{Learnable residual}}\\
 \text{where }\quad & x_0 = s_t \\
 & x_{k+1} = f(x_k, u_k) \\
 & \underbrace{x_k \in \mathcal{X},\quad u_k \in \mathcal{U}}_{\text{Prior engineering}} \\
 \end{align}
-:::
-:::
 
 
 ## A special case
@@ -1799,9 +1692,9 @@ RL
 :::
 
 
-## Break
+## Break {.center}
 
-![](figs/Chaotic+Grad+Student+HiRes.jpg){fig-align="center"}
+![](figs/Chaotic+Grad+Student+HiRes.png){fig-align="center"}
 
 
 
@@ -1859,11 +1752,11 @@ RL
 
 
 ::: {layout="[[1,0.2,1]]" layout-valign="center"} 
-![](figs/anim_disc_3d_uncontrolled.gif)
+![](videos/anim_disc_3d_uncontrolled.gif)
 
 $$\rightarrow$$
 
-![](figs/anim_disc_3d_ctrl_motor.gif)
+![](videos/anim_disc_3d_ctrl_motor.gif)
 :::
 
 ::: aside
@@ -1947,7 +1840,7 @@ for i in range(20):
     u0 = mpc.make_step(x0)
     x0 = simulator.make_step(u0)
 ```
-![](figs/anim_disc.gif){fig-align="center"}
+![](videos/anim_disc.gif){fig-align="center"}
 
 ## 
 
@@ -1988,7 +1881,7 @@ sim_graphics = do_mpc.graphics.Graphics(simulator.data)
 :::
 
 
-<div style="position:absolute; right:0;"> <small>(...A really long list [here](https://github.com/wwxFromTju/awesome-reinforcement-learning-lib))</small> </div>
+<div> <small>(...A really long list [here](https://github.com/wwxFromTju/awesome-reinforcement-learning-lib))</small> </div>
 
 
 ## RL frameworks 
@@ -2308,11 +2201,9 @@ $N=1$ plus learned terminal value function
 
 We gave the agent a binary reward
 
-. . .
 
 Why is that a challenge for the agent? Pros/cons of such a reward?
 
-. . .
 
 
 
@@ -2409,14 +2300,6 @@ A "good" model of course improves both
 
 
 
-## Highlights {visibility="hidden"}
-
-
-![](figs/reward_mass_HER.png){fig-align="center"}
-
-
-![](figs/reward-RL-baseline-badmodel.png){fig-align="center"}
-
 
 ##
 
@@ -2437,9 +2320,9 @@ No relabeling
 
 </div>
 
-![](figs/masses-noHER-badmodel.gif)
+![](videos/masses-noHER-badmodel.gif)
 
-![](figs/masses-noHER-goodmodel.gif)
+![](videos/masses-noHER-goodmodel.gif)
 
 
 
@@ -2451,19 +2334,14 @@ Relabeling
 
 </div>
 
-![](figs/masses-HER-badmodel.gif)
+![](videos/masses-HER-badmodel.gif)
 
-![](figs/masses-HER-goodmodel.gif)
+![](videos/masses-HER-goodmodel.gif)
 
 :::
 
 
 
-
-
-## {visibility="hidden"}
-
-![](figs/Automation+Paradox.jpg){fig-align="center"}
 
 
 ## Summary
@@ -2485,9 +2363,9 @@ Relabeling
 
 2022
 
-![Classic, rigorous](figs/neurobertsekas.jpeg){height=375}
+![Classic, rigorous](figs/neurobertsekas.png){height=375}
 
-![Contemporary, intuitive](figs/alphazerobertsekas.jpg){height=375}
+![Contemporary, intuitive](figs/alphazerobertsekas.png){height=375}
 :::
 
 ::: aside
@@ -2533,7 +2411,7 @@ See @arroyo2022ReinforcedModel and [BOPEST](https://ibpsa.github.io/project1-bop
 
 ![[-@karnchanachari2020practical]](figs/3_rlmpc_paper.png){height=100}
 
-
+(See also @bhardwaj2020BlendingMPC)
 :::
 
 
@@ -2660,7 +2538,7 @@ We need a scalable approach to handling loop interactions!
 
 MPC = Multi-parametric quadratic programming
 
-## {auto-animate="true"}
+##
 
 
 Original problem:
@@ -2674,15 +2552,8 @@ Original problem:
 \end{align}
 
 
-## {auto-animate="true"}
 
-Unroll the dynamics:
-
-::: {.r-stack}
-$$x_{k+1} = A x_k + B u_k$$
-:::
-
-## {auto-animate="true"}
+##
 
 Unroll the dynamics:
 
@@ -2718,7 +2589,7 @@ u_{N-1} \\ u_{N-2} \\ \vdots \\ u_0
 $x_{k+1} = A x_k + B u_k$ and $x_0 = 0$ for ease
 :::
 
-## {auto-animate="true"}
+## 
 
 Algebra:
 
@@ -2731,7 +2602,7 @@ Algebra:
 See @bemporad2002ExplicitLinear
 
 
-## {auto-animate="true"}
+## 
 
 KKT conditions:
 
@@ -2759,10 +2630,10 @@ See @bemporad2002ExplicitLinear, @karg2020EfficientRepresentation, @montufar2014
 
 ## Other things I ignored or didn't get to
 
-- State estimation @nejatbakhshesfahani2023LearningbasedState
-- Differentiable MPC @gros2020DataDrivenEconomic, @amos2019DifferentiableMPC
-- Offset-free tracking @maeder2009LinearOffsetfree
-- Industrial control: theory vs practice @forbes2015ModelPredictive, @elnawawi2022InteractiveVisualization
+- State estimation [@nejatbakhshesfahani2023LearningbasedState]
+- Differentiable MPC [@gros2020DataDrivenEconomic; @amos2019DifferentiableMPC]
+- Offset-free tracking [@maeder2009LinearOffsetfree]
+- Industrial control: theory vs practice [@forbes2015ModelPredictive; @elnawawi2022InteractiveVisualization]
 
 
 # Appendix
@@ -2818,10 +2689,20 @@ By properties of geometric series:
 $\sum_{i = 0}^{\infty} \alpha \beta^i = \alpha \frac{1}{1 - \beta}$
 :::
 
-## A 1-D optimization problem {auto-animate="true"}
 
-::: {style="margin-top: 200px; margin-left: 100px;"}
+
+
+## A 1-D optimization problem
+
+:::: {.columns}
+::: {.column}
+::: {style="margin-top: 200px;"}
 $$\min_{K} \frac{1 + \rho K^2}{1 - \gamma\left(a - bK\right)^2}$$
 :::
+:::
 
+::: {.column}
+![Desmos [[graph]](https://www.desmos.com/calculator/vgnchtuqys)](figs/desmos-controller.png){height=350}
+:::
+::::
 
