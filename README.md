@@ -13,6 +13,16 @@ At some point, I will also post a link to a companion paper I am working on. You
 
 ## Code
 
-*(Updates/documentation coming when I get home)*
+Code is contained [here](./code). It's a mix of Python and Julia. 
 
-In the meantime, the raw code can be found [here](./code).
+To run the Python code in [RL_MPC](./code/RL_MPC) or [double_inverted_pendulum](./code/double_inverted_pendulum), clone this repo, create/activate a virtual environment, `cd` to the `code` directory then install from `requirements.txt`:
+```
+pip install -r requirements.txt
+```
+
+To run the Julia code in [PID_LQR](./code/PID_LQR), clone this repo, navigate to `PID_LQR` in the Julia REPL then type the commands:
+```
+]
+activate .
+instantiate
+```
