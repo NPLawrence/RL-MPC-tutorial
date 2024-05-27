@@ -146,8 +146,8 @@ class ContinuousAcrobotEnv(Env):
         "render_fps": 15,
     }
 
-    dt = 0.2 # too slow?
-    # dt = 0.1
+    # dt = 0.2 # too slow?
+    dt = 0.1
 
     LINK_LENGTH_1 = 1.0  # [m]
     LINK_LENGTH_2 = 1.0  # [m]
@@ -186,7 +186,7 @@ class ContinuousAcrobotEnv(Env):
         low = -high
         self.observation_space = spaces.Box(low=low, high=high, dtype=np.float32)
         # self.action_space = spaces.Discrete(3)
-        self.action_space = spaces.Box(-1.0, 1.0, shape=(1,), dtype=np.float32)
+        self.action_space = spaces.Box(-2.0, 2.0, shape=(1,), dtype=np.float32)
         self.state = None
         self.reward_fn = reward_fn
         
@@ -248,65 +248,16 @@ class ContinuousAcrobotEnv(Env):
         # reward #2 -- height itself
         if self.reward_fn == "height":
             reward = (height - 2)/4
-            # print("height")
 
-
-        # reward #3 -- height itself plus derivative
-        # reward = -(cos(self.state[0]) + cos(self.state[1] + self.state[0])) - np.abs(sin(self.state[0])*self.state[2] + sin(self.state[1] + self.state[0])*(self.state[3] + self.state[2]))
-
-        # very close!
-        # reward = -0.5*(cos(self.state[0]) + cos(self.state[1] + self.state[0])) + np.exp(-0.5*((self.state[3])**2))
-
-        # even closer!
-        # reward = np.exp(-0.5*(
-        #     (-1-cos(self.state[0]))**2 + (1-cos(self.state[1]))**2 + (self.state[2]/(self.MAX_VEL_1))**2 + (self.state[3]/(self.MAX_VEL_2))**2
-        # ))
-
-        # about the same!
-        # reward = np.exp(-0.5*(
-        #     (-1-cos(self.state[0]))**2 + (1-cos(self.state[1]))**2
-        # ))
-
-        # this balanced at an in-between stable point!
-        # height = -cos(self.state[0]) - cos(self.state[1] + self.state[0])
-        # reward = np.exp(-0.5*(
-        #     (2-height)**2 + self.state[2]**2 + self.state[3]**2
-        # ))
-
-        # trying again!
-
-
-        # very interesting/close!
-        # reward = -np.max([np.abs((-1-cos(self.state[0]))), np.abs(1-cos(self.state[1])), np.abs(self.state[2]/(self.MAX_VEL_1)), np.abs(self.state[3]/(self.MAX_VEL_2))])
-        # height = -cos(self.state[0]) - cos(self.state[1] + self.state[0])   
-
+        # reward #3 -- l2 norm-based
         if self.reward_fn == "l2":
             reward = -((-1-cos(self.state[0]))/2)**2 - ((1-cos(self.state[1]))/2)**2 - (self.state[2]/self.MAX_VEL_1)**2 - (self.state[3]/(self.MAX_VEL_2))**2
 
-            # print("l2")
 
         # This one works! 
         if self.reward_fn == "linf":
             vals = [np.abs(2-height)/4.0, np.abs(s[2]/(self.MAX_VEL_1)), np.abs(s[3]/(self.MAX_VEL_2))]
-            # vals = [np.abs(2-height)/4.0, np.abs(self.state[2]/(self.MAX_VEL_1))]
             reward = -np.max(vals)
-            # reward = -np.log(np.sum(np.exp([vals])))
-            # print("hello")
-
-
-        # reward = -cos(self.state[0]) + cos(self.state[1])
-        # if cos(self.state[0]) < 0:
-        #     reward = cos(self.state[1])
-        # else:
-        #     reward = -1
-
-
-        # reward = -cos(self.state[0]) + cos(self.state[1]) - np.abs(self.state[2]/10)
-        # reward = np.exp(-0.5*(self.state[3]**2)) - cos(self.state[0]) + cos(self.state[1])
-        # reward = -cos(self.state[0])
-
-        
-
 
 
         if self.render_mode == "human":

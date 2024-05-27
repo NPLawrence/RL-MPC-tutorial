@@ -1,5 +1,5 @@
 """
-Use a standard MPC scheme with a learnable value function added as a terminal cost.
+Use a standard MPC module with a learnable value function added as a terminal cost.
 Includes hindsight relabeling.
 Uses do-mpc to optimize in the action variable during rollouts, hence improving the policy.
 Keeps the policy network intact but only for training the critic, not interacting with the environment.
@@ -48,7 +48,7 @@ class Args:
     """if toggled, cuda will be enabled by default"""
     track: bool = False
     """if toggled, this experiment will be tracked with Weights and Biases"""
-    wandb_project_name: str = "VFMPC"
+    wandb_project_name: str = "testing"
     """the wandb's project name"""
     wandb_entity: str = None
     """the entity (team) of wandb's project"""
@@ -561,7 +561,8 @@ poetry run pip install "stable_baselines3==2.0.0a1"
             if ep_number % 15 == 0:
                 episode_path =  f"runs/{run_name}/fig-episode-" + f"{ep_number}.pdf"
                 ep_data = envs.env_method("renderMPC", mpc, 60, path=episode_path,indices=[0])
-                wandb.log({"figs": wandb.Image(ep_data[0])})
+                if args.track:
+                    wandb.log({"figs": wandb.Image(ep_data[0])})
                 envs.reset()
 
             if not args.is_baseline:
@@ -577,14 +578,13 @@ poetry run pip install "stable_baselines3==2.0.0a1"
                 # estimator.set_initial_guess()
 
 
-
-
-
     episode_path =  f"runs/{run_name}/fig-final.pdf"
     ep_data = envs.env_method("renderMPC", mpc, 60, path=episode_path,indices=[0])
-    wandb.log({"figs": wandb.Image(ep_data[0])})
+    if args.track:
+        wandb.log({"figs": wandb.Image(ep_data[0])})
+        wandb.finish()
     # plt.show()
     envs.close()
     writer.close()
-    wandb.finish()
+    
 

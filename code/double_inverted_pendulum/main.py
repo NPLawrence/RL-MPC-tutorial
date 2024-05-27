@@ -52,13 +52,13 @@ from template_simulator import template_simulator
 from template_model import template_model
 
 """ User settings: """
-show_animation = False
-store_animation = True
+show_animation = True
+store_animation = False
 store_results = False
 
 # Define obstacles to avoid (cicles)
 obstacles = [
-    
+    {'x': 0., 'y': 0.6, 'r': 0.3},
 ]
 
 scenario = 1  # 1 = down-down start, 2 = up-up start, both with setpoint change.
@@ -69,8 +69,7 @@ Get configured do-mpc modules:
 
 model = template_model(obstacles)
 simulator = template_simulator(model)
-mpc = template_mpc(model)
-mpc.settings.supress_ipopt_output()
+mpc = template_mpc(model, silence_solver = True)
 estimator = do_mpc.estimator.StateFeedback(model)
 
 """
@@ -131,39 +130,37 @@ def pendulum_bars(x):
 
 mpc_graphics = do_mpc.graphics.Graphics(mpc.data)
 
-fig = plt.figure(figsize=(9,9))
-# fig = plt.figure(figsize=(1,1))
-
+fig = plt.figure(figsize=(18,9))
 plt.ion()
 
-ax1 = plt.subplot2grid((1,1), (0, 0), rowspan=1)
-# ax2 = plt.subplot2grid((4, 2), (0, 1))
-# ax3 = plt.subplot2grid((4, 2), (1, 1))
-# ax4 = plt.subplot2grid((4, 2), (2, 1))
-# ax5 = plt.subplot2grid((4, 2), (3, 1))
+ax1 = plt.subplot2grid((4, 4), (0, 0), colspan=2, rowspan=4)
+ax2 = plt.subplot2grid((4, 4), (0, 2), colspan=2)
+ax3 = plt.subplot2grid((4, 4), (1, 2), colspan=2)
+ax4 = plt.subplot2grid((4, 4), (2, 2), colspan=2)
+ax5 = plt.subplot2grid((4, 4), (3, 2), colspan=2)
 
-# ax2.set_ylabel('$E_{kin}$ [J]')
-# ax3.set_ylabel('$E_{pot}$ [J]')
-# ax4.set_ylabel('position  [m]')
-# ax5.set_ylabel('Input force [N]')
+ax2.set_ylabel('$E_{kin}$ [J]')
+ax3.set_ylabel('$E_{pot}$ [J]')
+ax4.set_ylabel('position  [m]')
+ax5.set_ylabel('Input force [N]')
 
-# mpc_graphics.add_line(var_type='_aux', var_name='E_kin', axis=ax2)
-# mpc_graphics.add_line(var_type='_aux', var_name='E_pot', axis=ax3)
-# mpc_graphics.add_line(var_type='_x', var_name='pos', axis=ax4)
-# mpc_graphics.add_line(var_type='_tvp', var_name='pos_set', axis=ax4)
-# mpc_graphics.add_line(var_type='_u', var_name='force', axis=ax5)
+mpc_graphics.add_line(var_type='_aux', var_name='E_kin', axis=ax2)
+mpc_graphics.add_line(var_type='_aux', var_name='E_pot', axis=ax3)
+mpc_graphics.add_line(var_type='_x', var_name='pos', axis=ax4)
+mpc_graphics.add_line(var_type='_tvp', var_name='pos_set', axis=ax4)
+mpc_graphics.add_line(var_type='_u', var_name='force', axis=ax5)
 
 ax1.axhline(0,color='black')
 
 # Axis on the right.
-# for ax in [ax2, ax3, ax4, ax5]:
-#     ax.yaxis.set_label_position("right")
-#     ax.yaxis.tick_right()
+for ax in [ax2, ax3, ax4, ax5]:
+    ax.yaxis.set_label_position("right")
+    ax.yaxis.tick_right()
 
-#     if ax != ax5:
-#         ax.xaxis.set_ticklabels([])
+    if ax != ax5:
+        ax.xaxis.set_ticklabels([])
 
-# ax5.set_xlabel('time [s]')
+ax5.set_xlabel('time [s]')
 
 bar1 = ax1.plot([],[], '-o', linewidth=5, markersize=10)
 bar2 = ax1.plot([],[], '-o', linewidth=5, markersize=10)
@@ -226,7 +223,7 @@ if store_animation:
 
     anim = FuncAnimation(fig, update, frames=n_steps, repeat=False)
     gif_writer = ImageMagickWriter(fps=20)
-    anim.save('anim_dip_no-obstacle.gif', writer=gif_writer)
+    anim.save('anim_dip.gif', writer=gif_writer)
 
 
 # Store results:

@@ -1,5 +1,3 @@
 {
-    "cSpell.enableFiletypes": [
-        "quarto"
-    ]
+    "julia.environmentPath": "/Users/nplawrence/Library/CloudStorage/OneDrive-UBC/Research/code/RL-MPC-tutorial/code/PID_LQR"
 }
