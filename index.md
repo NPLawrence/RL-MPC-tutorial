@@ -1,4 +1,4 @@
-[HTML here](slides.html)
+[HTML here](./slides/slides.html)
 
 [PDF here](slides.pdf)
 

@@ -17,6 +17,7 @@ format:
         auto-play-media: true
         embed-resources: true
     pdf: default
+format-links: [pdf]
 bibliography: tutorial.bib
 ---
 
