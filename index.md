@@ -1,6 +1,6 @@
-[HTML here](./slides/slides.html)
+[HTML here](slides.html)
 
-[PDF here](./slides/slides.pdf)
+[PDF here](slides.pdf)
 
 [Cheat sheet here](cheat_sheet.pdf)
 

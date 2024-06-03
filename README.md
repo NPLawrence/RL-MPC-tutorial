@@ -3,7 +3,7 @@
  
 This repo contains the slides and supporting code for my tutorial on [reinforcement learning and MPC at Upper Bound 2024](https://www.upperbound.ai/speakers/SPEWNJXVTAX).
 
-To view the slides, either download them [here](./slides) or go to this page's [site](https://nplawrence.com/RL-MPC-tutorial/).
+To view the slides, go to this page's [site](https://nplawrence.com/RL-MPC-tutorial/).
 
 ---
 
